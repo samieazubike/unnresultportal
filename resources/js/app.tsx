@@ -32,7 +32,8 @@ createInertiaApp({
         );
     },
     progress: {
-        color: 'oklch(0.588 0.196 258)',
+        // The brand green, matching --primary in app.css.
+        color: 'oklch(0.455 0.112 155)',
     },
 });
 

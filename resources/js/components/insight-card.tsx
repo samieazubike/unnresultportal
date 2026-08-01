@@ -29,12 +29,21 @@ export function InsightCard({
                 className,
             )}
         >
-            {/* Layered radial washes give the mesh-gradient look without an image. */}
+            {/*
+             * Layered radial washes give the mesh-gradient look without an
+             * image, kept in the brand's green family so the card still reads
+             * as the one panel that pops.
+             *
+             * The light lime and teal washes are pushed to the top-right and
+             * far edge deliberately: all the text sits down the left and along
+             * the bottom, and white on lime would not carry. Those areas stay
+             * on the deep green base, where white clears 5:1.
+             */}
             <div
                 aria-hidden
-                className="absolute inset-0 bg-[radial-gradient(120%_120%_at_10%_10%,#fb923c_0%,transparent_45%),radial-gradient(120%_120%_at_85%_20%,#e879f9_0%,transparent_50%),radial-gradient(140%_140%_at_70%_95%,#6366f1_0%,transparent_55%),linear-gradient(140deg,#7c3aed_0%,#2563eb_100%)]"
+                className="absolute inset-0 bg-[radial-gradient(90%_90%_at_100%_0%,#34d399_0%,transparent_55%),radial-gradient(80%_80%_at_85%_35%,#14b8a6_0%,transparent_60%),radial-gradient(120%_120%_at_0%_100%,#04512F_0%,transparent_60%),linear-gradient(150deg,#056839_0%,#043D28_100%)]"
             />
-            <div aria-hidden className="absolute inset-0 bg-black/10" />
+            <div aria-hidden className="absolute inset-0 bg-black/25" />
 
             <div className="relative">
                 <div className="mb-auto flex items-center gap-1.5 text-xs font-medium tracking-wide text-white/90">

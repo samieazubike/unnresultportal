@@ -68,87 +68,105 @@
 }
 
 /*
- * Palette: light cool-grey canvas, white cards, a single blue lead.
- * Chart hues run blue → cyan → amber → green → violet, with blue first so
- * single-series charts pick up the brand colour by default.
+ * Palette: University of Nigeria green.
+ *
+ * The brand colour is #056839, the deep forest green of the UNN portal, which
+ * converts to oklch(0.455 0.112 155). Every other token derives from that
+ * hue: the neutrals
+ * carry a trace of it (chroma 0.003–0.006 at hue 155) so the greys sit under
+ * the green rather than leaning blue against it.
+ *
+ * Chart hues run green → teal → amber → blue → violet. Green leads so a
+ * single-series chart is on-brand without being told; blue occupies the slot
+ * the old green had, so no two series share a hue.
  */
 :root {
-    --background: oklch(0.976 0.003 247);
-    --foreground: oklch(0.21 0.02 258);
+    --background: oklch(0.976 0.004 155);
+    --foreground: oklch(0.21 0.018 155);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.21 0.02 258);
+    --card-foreground: oklch(0.21 0.018 155);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.21 0.02 258);
-    --primary: oklch(0.588 0.196 258);
+    --popover-foreground: oklch(0.21 0.018 155);
+    --primary: oklch(0.455 0.112 155);
     --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.968 0.005 247);
-    --secondary-foreground: oklch(0.28 0.03 258);
-    --muted: oklch(0.974 0.003 247);
-    --muted-foreground: oklch(0.53 0.02 257);
-    --accent: oklch(0.958 0.014 254);
-    --accent-foreground: oklch(0.42 0.14 258);
+    --secondary: oklch(0.968 0.006 155);
+    --secondary-foreground: oklch(0.28 0.03 155);
+    --muted: oklch(0.974 0.004 155);
+    --muted-foreground: oklch(0.53 0.018 155);
+    --accent: oklch(0.952 0.019 155);
+    --accent-foreground: oklch(0.365 0.10 155);
     --destructive: oklch(0.593 0.216 27);
     --destructive-foreground: oklch(0.99 0 0);
-    --success: oklch(0.61 0.15 155);
+    --success: oklch(0.61 0.15 158);
     --success-foreground: oklch(0.99 0 0);
     --warning: oklch(0.75 0.15 78);
     --warning-foreground: oklch(0.26 0.05 78);
-    --border: oklch(0.925 0.006 250);
-    --input: oklch(0.925 0.006 250);
-    --ring: oklch(0.588 0.196 258);
-    --chart-1: oklch(0.588 0.196 258);
-    --chart-2: oklch(0.7 0.13 215);
+    --border: oklch(0.925 0.006 155);
+    --input: oklch(0.925 0.006 155);
+    --ring: oklch(0.455 0.112 155);
+    --chart-1: oklch(0.455 0.112 155);
+    --chart-2: oklch(0.7 0.12 195);
     --chart-3: oklch(0.78 0.15 78);
-    --chart-4: oklch(0.66 0.15 155);
+    --chart-4: oklch(0.6 0.17 258);
     --chart-5: oklch(0.6 0.2 300);
     --radius: 0.875rem;
     --sidebar: oklch(1 0 0);
-    --sidebar-foreground: oklch(0.32 0.02 258);
-    --sidebar-primary: oklch(0.588 0.196 258);
+    --sidebar-foreground: oklch(0.32 0.02 155);
+    --sidebar-primary: oklch(0.455 0.112 155);
     --sidebar-primary-foreground: oklch(0.99 0 0);
-    --sidebar-accent: oklch(0.968 0.005 247);
-    --sidebar-accent-foreground: oklch(0.21 0.02 258);
-    --sidebar-border: oklch(0.93 0.005 250);
-    --sidebar-ring: oklch(0.588 0.196 258);
+    --sidebar-accent: oklch(0.962 0.012 155);
+    --sidebar-accent-foreground: oklch(0.21 0.018 155);
+    --sidebar-border: oklch(0.93 0.006 155);
+    --sidebar-ring: oklch(0.455 0.112 155);
 }
 
 .dark {
-    --background: oklch(0.17 0.014 258);
-    --foreground: oklch(0.96 0.004 250);
-    --card: oklch(0.216 0.017 258);
-    --card-foreground: oklch(0.96 0.004 250);
-    --popover: oklch(0.216 0.017 258);
-    --popover-foreground: oklch(0.96 0.004 250);
-    --primary: oklch(0.66 0.18 258);
-    --primary-foreground: oklch(0.16 0.02 258);
-    --secondary: oklch(0.27 0.02 258);
-    --secondary-foreground: oklch(0.96 0.004 250);
-    --muted: oklch(0.262 0.018 258);
-    --muted-foreground: oklch(0.7 0.02 255);
-    --accent: oklch(0.3 0.04 258);
-    --accent-foreground: oklch(0.85 0.1 258);
+    --background: oklch(0.17 0.012 155);
+    --foreground: oklch(0.96 0.004 155);
+    --card: oklch(0.216 0.015 155);
+    --card-foreground: oklch(0.96 0.004 155);
+    --popover: oklch(0.216 0.015 155);
+    --popover-foreground: oklch(0.96 0.004 155);
+    --primary: oklch(0.63 0.125 155);
+    --primary-foreground: oklch(0.15 0.02 155);
+    --secondary: oklch(0.27 0.018 155);
+    --secondary-foreground: oklch(0.96 0.004 155);
+    --muted: oklch(0.262 0.016 155);
+    --muted-foreground: oklch(0.7 0.018 155);
+    --accent: oklch(0.29 0.042 155);
+    --accent-foreground: oklch(0.84 0.09 155);
     --destructive: oklch(0.63 0.2 25);
     --destructive-foreground: oklch(0.98 0 0);
-    --success: oklch(0.68 0.15 155);
-    --success-foreground: oklch(0.16 0.02 155);
+    --success: oklch(0.7 0.14 158);
+    --success-foreground: oklch(0.16 0.02 158);
     --warning: oklch(0.8 0.14 78);
     --warning-foreground: oklch(0.2 0.04 78);
-    --border: oklch(0.3 0.018 258);
-    --input: oklch(0.3 0.018 258);
-    --ring: oklch(0.66 0.18 258);
-    --chart-1: oklch(0.66 0.18 258);
-    --chart-2: oklch(0.75 0.13 215);
+    --border: oklch(0.3 0.016 155);
+    --input: oklch(0.3 0.016 155);
+    --ring: oklch(0.63 0.125 155);
+    --chart-1: oklch(0.63 0.125 155);
+    --chart-2: oklch(0.75 0.12 195);
     --chart-3: oklch(0.8 0.14 78);
-    --chart-4: oklch(0.72 0.15 155);
+    --chart-4: oklch(0.68 0.16 258);
     --chart-5: oklch(0.68 0.18 300);
-    --sidebar: oklch(0.2 0.016 258);
-    --sidebar-foreground: oklch(0.9 0.008 252);
-    --sidebar-primary: oklch(0.66 0.18 258);
-    --sidebar-primary-foreground: oklch(0.16 0.02 258);
-    --sidebar-accent: oklch(0.27 0.02 258);
-    --sidebar-accent-foreground: oklch(0.96 0.004 250);
-    --sidebar-border: oklch(0.3 0.018 258);
-    --sidebar-ring: oklch(0.66 0.18 258);
+    --sidebar: oklch(0.2 0.014 155);
+    --sidebar-foreground: oklch(0.9 0.008 155);
+    --sidebar-primary: oklch(0.63 0.125 155);
+    --sidebar-primary-foreground: oklch(0.15 0.02 155);
+    --sidebar-accent: oklch(0.27 0.018 155);
+    --sidebar-accent-foreground: oklch(0.96 0.004 155);
+    --sidebar-border: oklch(0.3 0.016 155);
+    --sidebar-ring: oklch(0.63 0.125 155);
+}
+
+/*
+ * The brand green as a raw value, for the few places that need it outside the
+ * semantic token system — the landing hero, and the Inertia progress bar.
+ */
+@theme {
+    --color-brand: oklch(0.455 0.112 155);
+    --color-brand-dark: oklch(0.355 0.092 155);
+    --color-brand-light: oklch(0.63 0.125 155);
 }
 
 @layer base {
