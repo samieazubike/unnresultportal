@@ -1,0 +1,457 @@
+<?php
+
+use App\Enums\ResultStatus;
+use App\Models\Course;
+use App\Models\Registration;
+use App\Models\Result;
+use App\Models\Student;
+use App\Models\User;
+use App\Services\ResultIntegrityService;
+use Database\Factories\CourseFactory;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * The definition-of-done items from README §15, asserted through real HTTP
+ * requests rather than against the services directly.
+ */
+beforeEach(function () {
+    $this->head = User::factory()->lecturer()->create();
+    $this->coLecturer = User::factory()->lecturer()->create();
+    $this->officer = User::factory()->examOfficer()->create();
+    $this->director = User::factory()->ictDirector()->create();
+    $this->admin = User::factory()->admin()->create();
+
+    $this->course = Course::factory()->create(['course_code' => 'COS 421']);
+    CourseFactory::assignTeam($this->course, [$this->head, $this->coLecturer], head: $this->head);
+
+    $this->student = Student::factory()->create();
+    $this->registration = Registration::factory()->create([
+        'student_id' => $this->student->id,
+        'course_id' => $this->course->id,
+        'session' => '2025/2026',
+        'semester' => 1,
+    ]);
+});
+
+describe('role-based landing', function () {
+    it('sends each role to its own dashboard', function (string $state, string $path) {
+        $user = User::factory()->{$state}()->create();
+
+        if ($state === 'student') {
+            Student::factory()->create(['user_id' => $user->id]);
+        }
+
+        $this->actingAs($user)->get('/dashboard')->assertRedirect($path);
+    })->with([
+        ['student', '/student/dashboard'],
+        ['lecturer', '/lecturer/dashboard'],
+        ['examOfficer', '/dashboards/department'],
+        ['ictDirector', '/dashboards/department'],
+        ['admin', '/admin/dashboard'],
+    ]);
+
+    it('keeps a student out of staff screens', function (string $path) {
+        $this->actingAs($this->student->user)->get($path)->assertForbidden();
+    })->with(['/review', '/publish', '/integrity', '/admin/courses', '/lecturer/courses']);
+
+    it('keeps a lecturer out of the review and publication screens', function (string $path) {
+        $this->actingAs($this->head)->get($path)->assertForbidden();
+    })->with(['/review', '/publish', '/admin/courses']);
+});
+
+describe('score entry', function () {
+    it('lets a co-lecturer save scores and computes the grade', function () {
+        $this->actingAs($this->coLecturer)
+            ->post("/lecturer/courses/{$this->course->id}/scores", [
+                'scores' => [[
+                    'registration_id' => $this->registration->id,
+                    'ca_score' => 24,
+                    'exam_score' => 46,
+                ]],
+            ])
+            ->assertRedirect();
+
+        $result = Result::query()->sole();
+
+        expect($result->total_score)->toBe(70.0)
+            ->and($result->grade)->toBe('A')
+            ->and($result->grade_point)->toBe(5);
+    });
+
+    it('refuses a lecturer who does not teach the course', function () {
+        $outsider = User::factory()->lecturer()->create();
+
+        $this->actingAs($outsider)
+            ->post("/lecturer/courses/{$this->course->id}/scores", [
+                'scores' => [[
+                    'registration_id' => $this->registration->id,
+                    'ca_score' => 24,
+                    'exam_score' => 46,
+                ]],
+            ])
+            ->assertForbidden();
+
+        expect(Result::count())->toBe(0);
+    });
+
+    it('rejects a CA score above 30', function () {
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores", [
+                'scores' => [[
+                    'registration_id' => $this->registration->id,
+                    'ca_score' => 31,
+                    'exam_score' => 46,
+                ]],
+            ])
+            ->assertSessionHasErrors('scores.0.ca_score');
+    });
+
+    it('rejects an exam score above 70', function () {
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores", [
+                'scores' => [[
+                    'registration_id' => $this->registration->id,
+                    'ca_score' => 24,
+                    'exam_score' => 71,
+                ]],
+            ])
+            ->assertSessionHasErrors('scores.0.exam_score');
+    });
+
+    it('never accepts a grade from input', function () {
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores", [
+                'scores' => [[
+                    'registration_id' => $this->registration->id,
+                    'ca_score' => 5,
+                    'exam_score' => 10,
+                    'grade' => 'A',
+                    'grade_point' => 5,
+                ]],
+            ]);
+
+        expect(Result::query()->sole()->grade)->toBe('F');
+    });
+});
+
+describe('submission is the head\'s alone', function () {
+    beforeEach(function () {
+        Result::factory()->scoring(70)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Draft,
+        ]);
+    });
+
+    it('lets the head submit', function () {
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores/submit", [
+                'session' => '2025/2026',
+                'semester' => 1,
+            ])
+            ->assertRedirect();
+
+        expect(Result::query()->sole()->status)->toBe(ResultStatus::Submitted);
+    });
+
+    it('refuses a co-lecturer', function () {
+        $this->actingAs($this->coLecturer)
+            ->post("/lecturer/courses/{$this->course->id}/scores/submit", [
+                'session' => '2025/2026',
+                'semester' => 1,
+            ])
+            ->assertForbidden();
+
+        expect(Result::query()->sole()->status)->toBe(ResultStatus::Draft);
+    });
+});
+
+describe('approval does not publish', function () {
+    beforeEach(function () {
+        $this->result = Result::factory()->scoring(70)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Submitted,
+        ]);
+    });
+
+    it('moves the sheet to approved and no further', function () {
+        $this->actingAs($this->officer)->post('/review/approve', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ])->assertRedirect();
+
+        expect($this->result->fresh()->status)->toBe(ResultStatus::Approved)
+            ->and($this->result->fresh()->published_by)->toBeNull();
+    });
+
+    /**
+     * The claim from §15: "Approved results are provably invisible to students
+     * until published." The result must be absent from the Inertia payload,
+     * not merely hidden in the interface.
+     */
+    it('leaves an approved result absent from the student portal payload', function () {
+        $this->actingAs($this->officer)->post('/review/approve', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ]);
+
+        $this->actingAs($this->student->user)
+            ->get('/student/results')
+            ->assertInertia(fn ($page) => $page
+                ->component('student/results')
+                ->where('sessions', [])
+                ->has('awaitingRelease', 1)
+                ->where('awaitingRelease.0.label', '2025/2026 1st semester')
+            );
+    });
+
+    it('keeps an approved result out of the CGPA trend', function () {
+        $this->actingAs($this->officer)->post('/review/approve', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ]);
+
+        $this->actingAs($this->student->user)
+            ->get('/student/dashboard')
+            ->assertInertia(fn ($page) => $page
+                ->where('cgpaTrend', [])
+                ->where('standing.cgpa', 0)
+            );
+    });
+
+    it('refuses approval from anyone but the examination officer', function (string $actor) {
+        $this->actingAs($this->{$actor})->post('/review/approve', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ])->assertForbidden();
+
+        expect($this->result->fresh()->status)->toBe(ResultStatus::Submitted);
+    })->with(['director', 'admin', 'head']);
+
+    it('returns a rejected sheet to the lecturer', function () {
+        $this->actingAs($this->officer)->post('/review/reject', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+            'note' => 'The CA column looks transposed.',
+        ])->assertRedirect();
+
+        expect($this->result->fresh()->status)->toBe(ResultStatus::Draft);
+    });
+
+    it('will not reject without a note', function () {
+        $this->actingAs($this->officer)->post('/review/reject', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ])->assertSessionHasErrors('note');
+    });
+});
+
+describe('publication', function () {
+    beforeEach(function () {
+        $this->result = Result::factory()->scoring(62)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Approved,
+        ]);
+
+        app(ResultIntegrityService::class)->freeze($this->result, $this->officer);
+    });
+
+    it('releases the result and records who did it', function () {
+        $this->actingAs($this->director)->post('/publish', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ])->assertRedirect();
+
+        expect($this->result->fresh()->status)->toBe(ResultStatus::Published)
+            ->and($this->result->fresh()->published_by)->toBe($this->director->id);
+    });
+
+    it('makes the result visible to its student, and only to them', function () {
+        $this->actingAs($this->director)->post('/publish', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ]);
+
+        $this->actingAs($this->student->user)
+            ->get('/student/results')
+            ->assertInertia(fn ($page) => $page
+                ->has('sessions', 1)
+                ->where('sessions.0.courses.0.course_code', 'COS 421')
+                ->where('sessions.0.courses.0.grade', 'B')
+            );
+    });
+
+    /**
+     * The ICT director holds the widest authority in the system. This asserts
+     * they cannot use it to change a mark: score fields posted to the publish
+     * endpoint are ignored entirely.
+     */
+    it('cannot alter a score even when score fields are posted', function () {
+        $before = $this->result->only(['ca_score', 'exam_score', 'total_score', 'grade', 'grade_point']);
+
+        $this->actingAs($this->director)->post('/publish', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+            'ca_score' => 30,
+            'exam_score' => 70,
+            'total_score' => 100,
+            'grade' => 'A',
+            'grade_point' => 5,
+        ]);
+
+        expect($this->result->fresh()->only(['ca_score', 'exam_score', 'total_score', 'grade', 'grade_point']))
+            ->toBe($before);
+    });
+
+    it('holds back a result that was tampered with in the database', function () {
+        DB::table('results')->where('id', $this->result->id)->update([
+            'grade' => 'A',
+            'grade_point' => 5,
+        ]);
+
+        $this->actingAs($this->director)->post('/publish', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ])->assertSessionHas('error');
+
+        expect($this->result->fresh()->status)->toBe(ResultStatus::Approved);
+    });
+
+    it('lists the tampered result on the integrity screen', function () {
+        DB::table('results')->where('id', $this->result->id)->update(['total_score' => 99]);
+
+        $this->actingAs($this->officer)
+            ->get('/integrity')
+            ->assertInertia(fn ($page) => $page
+                ->component('exam-officer/integrity')
+                ->has('results', 1)
+                ->where('results.0.course_code', 'COS 421')
+            );
+    });
+
+    it('reports a clean bill when nothing has been altered', function () {
+        $this->actingAs($this->officer)
+            ->get('/integrity')
+            ->assertInertia(fn ($page) => $page->where('results', []));
+    });
+
+    it('refuses publication from an administrator', function () {
+        $this->actingAs($this->admin)->post('/publish', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ])->assertForbidden();
+    });
+});
+
+describe('a student cannot read another student', function () {
+    beforeEach(function () {
+        Result::factory()->scoring(70)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Published,
+        ]);
+
+        $this->other = Student::factory()->create();
+    });
+
+    it('refuses another student\'s results by URL', function () {
+        $this->actingAs($this->other->user)
+            ->get("/students/{$this->student->id}/results")
+            ->assertForbidden();
+    });
+
+    it('refuses another student\'s transcript by URL', function () {
+        $this->actingAs($this->other->user)
+            ->get("/students/{$this->student->id}/transcript")
+            ->assertForbidden();
+    });
+
+    it('lets staff read any student', function () {
+        $this->actingAs($this->officer)
+            ->get("/students/{$this->student->id}/results")
+            ->assertOk();
+    });
+});
+
+describe('transcript', function () {
+    beforeEach(function () {
+        Result::factory()->scoring(70)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Published,
+        ]);
+    });
+
+    it('downloads as a PDF', function () {
+        $response = $this->actingAs($this->student->user)->get('/transcript');
+
+        $response->assertOk()->assertHeader('content-type', 'application/pdf');
+
+        expect($response->getContent())->toStartWith('%PDF');
+    });
+
+    it('is named after the registration number', function () {
+        $this->actingAs($this->student->user)
+            ->get('/transcript')
+            ->assertDownload('transcript-'.str_replace('/', '-', $this->student->reg_number).'.pdf');
+    });
+});
+
+describe('dashboards render', function () {
+    beforeEach(function () {
+        Result::factory()->scoring(70)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Published,
+        ]);
+    });
+
+    it('gives the staff dashboard every chart dataset', function () {
+        $this->actingAs($this->officer)
+            ->get('/dashboards/department')
+            ->assertInertia(fn ($page) => $page
+                ->component('staff/dashboard')
+                ->has('summary')
+                ->has('departmentPerformance')
+                ->has('facultyPerformance')
+                ->has('failureRates')
+                ->has('gradeDistribution', 6)
+            );
+    });
+
+    it('gives the lecturer their own grade distribution', function () {
+        $this->actingAs($this->head)
+            ->get('/lecturer/dashboard')
+            ->assertInertia(fn ($page) => $page
+                ->component('lecturer/dashboard')
+                ->where('summary.courses_led', 1)
+                ->has('gradeDistribution', 6)
+            );
+    });
+
+    it('gives the student their trend and standing', function () {
+        $this->actingAs($this->student->user)
+            ->get('/student/dashboard')
+            ->assertInertia(fn ($page) => $page
+                ->component('student/dashboard')
+                ->has('cgpaTrend', 1)
+                ->where('standing.cgpa', 5)
+                ->where('standing.classification', 'First Class Honours')
+            );
+    });
+});
+
+it('exposes no API routes at all', function () {
+    // §2 and §16: no /api group, no JSON API for the frontend to consume.
+    $apiRoutes = collect(app('router')->getRoutes())
+        ->filter(fn ($route) => str_starts_with($route->uri(), 'api/'));
+
+    expect($apiRoutes)->toBeEmpty();
+});
