@@ -1,8 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import { BookOpen, ClipboardList } from 'lucide-react';
 import { AnnouncementBar } from '@/components/announcement-bar';
-import { GradeDistributionChart, type GradeCount } from '@/components/charts/grade-distribution-chart';
-import { DataTable, type Column } from '@/components/data-table';
+import { GradeDistributionChart  } from '@/components/charts/grade-distribution-chart';
+import type {GradeCount} from '@/components/charts/grade-distribution-chart';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { StatCard } from '@/components/stat-card';
 import type { FailureRate } from '@/types/portal';

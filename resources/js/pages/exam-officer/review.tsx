@@ -1,7 +1,8 @@
 import { Head, router } from '@inertiajs/react';
 import { AlertTriangle, Check, Undo2 } from 'lucide-react';
 import { useState } from 'react';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { Button } from '@/components/ui/button';
 import {

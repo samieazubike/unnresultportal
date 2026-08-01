@@ -2,10 +2,14 @@ import { notarize } from '@electron/notarize';
 
 export default async (context) => {
     // Only notarize when process is running on a Mac
-    if (process.platform !== 'darwin') return;
+    if (process.platform !== 'darwin') {
+return;
+}
 
     // And the current build target is macOS
-    if (context.packager.platform.name !== 'mac') return;
+    if (context.packager.platform.name !== 'mac') {
+return;
+}
 
     console.log('aftersign hook triggered, start to notarize app.');
 
@@ -19,6 +23,7 @@ export default async (context) => {
         console.warn(
             'skipping notarizing, NATIVEPHP_APPLE_ID, NATIVEPHP_APPLE_ID_PASS and NATIVEPHP_APPLE_TEAM_ID env variables must be set.',
         );
+
         return;
     }
 

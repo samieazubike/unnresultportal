@@ -1,12 +1,18 @@
+import fs from 'fs';
 import { Notification } from 'electron';
 import express from 'express';
-import fs from 'fs';
 import playSoundLib from 'play-sound';
 import { broadcastToWindows, notifyLaravel } from '../utils.js';
 
 const isLocalFile = (sound: unknown) => {
-    if (typeof sound !== 'string') return false;
-    if (/^https?:\/\//i.test(sound)) return false;
+    if (typeof sound !== 'string') {
+return false;
+}
+
+    if (/^https?:\/\//i.test(sound)) {
+return false;
+}
+
     // Treat any string containing path separators as a local file
     return sound.includes('/') || sound.includes('\\');
 };
@@ -61,6 +67,7 @@ router.post('/', (req, res) => {
                     message: `Sound file not found: ${sound}`,
                     context: { sound },
                 });
+
                 return;
             }
 

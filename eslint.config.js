@@ -104,6 +104,7 @@ export default [
     },
     {
         ignores: [
+            'nativephp/**',
             'vendor',
             'node_modules',
             'public',

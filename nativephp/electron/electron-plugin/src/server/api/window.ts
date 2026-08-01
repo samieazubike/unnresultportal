@@ -1,3 +1,4 @@
+import { enable } from '@electron/remote/main/index.js';
 import { BrowserWindow } from 'electron';
 import windowStateKeeper from 'electron-window-state';
 import express from 'express';
@@ -5,7 +6,6 @@ import state from '../state.js';
 import { appendWindowIdToUrl, goToUrl, notifyLaravel } from '../utils.js';
 import mergePreferences from '../webPreferences.js';
 
-import { enable } from '@electron/remote/main/index.js';
 
 const router = express.Router();
 
@@ -165,6 +165,7 @@ router.get('/get/:id', (req, res) => {
 
     if (state.windows[id] === undefined) {
         res.sendStatus(404);
+
         return;
     }
 

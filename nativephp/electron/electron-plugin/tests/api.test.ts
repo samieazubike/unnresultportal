@@ -1,7 +1,8 @@
-import axios from 'axios';
 import type { AddressInfo } from 'net';
+import axios from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import startAPIServer, { APIProcess } from '../src/server/api';
+import type { APIProcess } from '../src/server/api';
+import startAPIServer from '../src/server/api';
 
 vi.mock('electron-updater', () => {
     return {
@@ -60,6 +61,7 @@ describe('API test', () => {
         }
 
         let response;
+
         try {
             response = await axios.get('/api/process', {
                 headers: {

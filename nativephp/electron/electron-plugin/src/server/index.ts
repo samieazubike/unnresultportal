@@ -1,5 +1,6 @@
-import { ChildProcess } from 'child_process';
-import startAPIServer, { APIProcess } from './api.js';
+import type { ChildProcess } from 'child_process';
+import type { APIProcess } from './api.js';
+import startAPIServer from './api.js';
 import { retrieveNativePHPConfig, retrievePhpIniSettings, serveApp, startScheduler } from './php.js';
 import state from './state.js';
 import { appendCookie } from './utils.js';

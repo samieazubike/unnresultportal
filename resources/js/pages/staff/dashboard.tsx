@@ -1,8 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { GraduationCap, ListChecks } from 'lucide-react';
-import { GradeDistributionChart, type GradeCount } from '@/components/charts/grade-distribution-chart';
+import { GradeDistributionChart  } from '@/components/charts/grade-distribution-chart';
+import type {GradeCount} from '@/components/charts/grade-distribution-chart';
 import { PerformanceComparisonChart } from '@/components/charts/performance-comparison-chart';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { StatCard } from '@/components/stat-card';
 import type {

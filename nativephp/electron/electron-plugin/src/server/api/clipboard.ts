@@ -67,6 +67,7 @@ router.post('/image', (req, res) => {
         res.status(400).json({
             error: e.message,
         });
+
         return;
     }
 

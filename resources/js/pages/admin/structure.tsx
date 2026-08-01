@@ -1,7 +1,8 @@
 import { Head, useForm } from '@inertiajs/react';
 import { Building2, Plus } from 'lucide-react';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import InputError from '@/components/input-error';
-import { DataTable, type Column } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

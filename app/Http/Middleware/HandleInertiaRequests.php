@@ -48,6 +48,11 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+
+            // The row-by-row Excel import errors of README §10. Flashed rather
+            // than returned as props because the lecturer must see the whole
+            // list on the sheet they uploaded from, before anything is saved.
+            'importErrors' => fn () => $request->session()->get('importErrors', []),
         ];
     }
 }

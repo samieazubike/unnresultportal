@@ -1,6 +1,6 @@
 import fs from 'fs';
-import fs_extra from 'fs-extra';
 import { join } from 'path';
+import fs_extra from 'fs-extra';
 import unzip from 'yauzl';
 const { removeSync, ensureDirSync } = fs_extra;
 
@@ -65,11 +65,16 @@ if (platform.phpBinary) {
 
         // Unzip the files
         unzip.open(binarySrcDir, { lazyEntries: true }, function (err, zipfile) {
-            if (err) throw err;
+            if (err) {
+throw err;
+}
+
             zipfile.readEntry();
             zipfile.on('entry', function (entry) {
                 zipfile.openReadStream(entry, function (err, readStream) {
-                    if (err) throw err;
+                    if (err) {
+throw err;
+}
 
                     const binaryPath = join(binaryDestDir, platform.phpBinary);
                     const writeStream = fs.createWriteStream(binaryPath);

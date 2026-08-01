@@ -1,7 +1,8 @@
 import { Head } from '@inertiajs/react';
 import { GraduationCap, Users } from 'lucide-react';
 import { PerformanceComparisonChart } from '@/components/charts/performance-comparison-chart';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { StatCard } from '@/components/stat-card';
 import type {

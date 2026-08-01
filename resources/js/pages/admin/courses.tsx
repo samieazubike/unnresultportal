@@ -1,7 +1,9 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { Crown, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -11,7 +13,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 

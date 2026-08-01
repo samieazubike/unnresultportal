@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Crown, Users } from 'lucide-react';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { Button } from '@/components/ui/button';
 

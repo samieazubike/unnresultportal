@@ -1,5 +1,6 @@
 import { Head, router } from '@inertiajs/react';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 
 type UserRow = {
     id: number;

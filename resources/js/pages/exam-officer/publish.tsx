@@ -1,7 +1,8 @@
 import { Head, router } from '@inertiajs/react';
 import { Send, ShieldAlert } from 'lucide-react';
 import { AnnouncementBar } from '@/components/announcement-bar';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { Button } from '@/components/ui/button';
 

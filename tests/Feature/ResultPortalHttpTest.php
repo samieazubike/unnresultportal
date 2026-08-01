@@ -8,7 +8,10 @@ use App\Models\Student;
 use App\Models\User;
 use App\Services\ResultIntegrityService;
 use Database\Factories\CourseFactory;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 /**
  * The definition-of-done items from README §15, asserted through real HTTP
@@ -454,4 +457,81 @@ it('exposes no API routes at all', function () {
         ->filter(fn ($route) => str_starts_with($route->uri(), 'api/'));
 
     expect($apiRoutes)->toBeEmpty();
+});
+
+describe('Excel upload over HTTP', function () {
+    it('surfaces every bad row and saves nothing', function () {
+        $students = collect(['2021/000101', '2021/000102', '2021/000103'])
+            ->map(fn (string $reg) => Student::factory()->create(['reg_number' => $reg]));
+
+        foreach ($students as $student) {
+            Registration::factory()->create([
+                'student_id' => $student->id,
+                'course_id' => $this->course->id,
+                'session' => '2025/2026',
+                'semester' => 1,
+            ]);
+        }
+
+        $spreadsheet = new Spreadsheet;
+        $spreadsheet->getActiveSheet()->fromArray([
+            ['reg_number', 'ca_score', 'exam_score'],
+            ['2021/000101', 24, 46],   // valid
+            ['2021/999999', 20, 40],   // unknown student
+            ['2021/000102', 45, 46],   // CA above 30
+            ['2021/000103', 24, 90],   // exam above 70
+            ['2021/000101', 10, 10],   // duplicate
+        ], null, 'A1');
+
+        $path = tempnam(sys_get_temp_dir(), 'upload').'.xlsx';
+        (new Xlsx($spreadsheet))->save($path);
+
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores/upload", [
+                'sheet' => new UploadedFile($path, 'scores.xlsx', null, null, true),
+                'session' => '2025/2026',
+                'semester' => 1,
+            ])
+            ->assertSessionHas('error')
+            ->assertSessionHas('importErrors', fn (array $errors) => count($errors) === 4);
+
+        // Not one row landed, including the valid one.
+        expect(Result::count())->toBe(0);
+    });
+
+    it('imports a clean sheet', function () {
+        $student = Student::factory()->create(['reg_number' => '2021/000201']);
+        Registration::factory()->create([
+            'student_id' => $student->id,
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ]);
+
+        $spreadsheet = new Spreadsheet;
+        $spreadsheet->getActiveSheet()->fromArray([
+            ['reg_number', 'ca_score', 'exam_score'],
+            ['2021/000201', 24, 46],
+        ], null, 'A1');
+
+        $path = tempnam(sys_get_temp_dir(), 'upload').'.xlsx';
+        (new Xlsx($spreadsheet))->save($path);
+
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores/upload", [
+                'sheet' => new UploadedFile($path, 'scores.xlsx', null, null, true),
+                'session' => '2025/2026',
+                'semester' => 1,
+            ])
+            ->assertSessionHas('success');
+
+        expect(Result::query()->where('grade', 'A')->count())->toBe(1);
+    });
+
+    it('downloads the pre-filled template', function () {
+        $this->actingAs($this->coLecturer)
+            ->get("/lecturer/courses/{$this->course->id}/scores/template?session=2025%2F2026&semester=1")
+            ->assertOk()
+            ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    });
 });

@@ -1,7 +1,7 @@
-import { BrowserWindow, Tray } from 'electron';
 import { EventEmitter } from 'events';
 import fs from 'fs';
 import path from 'path';
+import { BrowserWindow, Tray } from 'electron';
 import Positioner from '../positioner/index.js';
 
 import type { Options } from './types.js';
@@ -94,10 +94,12 @@ export class Menubar extends EventEmitter {
         if (!this._browserWindow || !this._isVisible) {
             return;
         }
+
         this.emit('hide');
         this._browserWindow.hide();
         this.emit('after-hide');
         this._isVisible = false;
+
         if (this._blurTimeout) {
             clearTimeout(this._blurTimeout);
             this._blurTimeout = null;
@@ -155,6 +157,7 @@ export class Menubar extends EventEmitter {
 
         // Default the window to the right if `trayPos` bounds are undefined or null.
         let noBoundsPosition = undefined;
+
         if (
             (trayPos === undefined || trayPos.x === 0) &&
             this._options.windowPosition &&
@@ -178,6 +181,7 @@ export class Menubar extends EventEmitter {
         this._browserWindow.show();
         this._isVisible = true;
         this.emit('after-show');
+
         return;
     }
 
@@ -195,6 +199,7 @@ export class Menubar extends EventEmitter {
         }
 
         let trayImage = this._options.icon || path.join(this._options.dir, 'IconTemplate.png');
+
         if (typeof trayImage === 'string' && !fs.existsSync(trayImage)) {
             trayImage = path.join(__dirname, '..', 'assets', 'IconTemplate.png'); // Default cat icon
         }
@@ -202,10 +207,12 @@ export class Menubar extends EventEmitter {
         const defaultClickEvent = this._options.showOnRightClick ? 'right-click' : 'click';
 
         this._tray = this._options.tray || new Tray(trayImage);
+
         // Type guards for TS not to complain
         if (!this.tray) {
             throw new Error('Tray has been initialized above');
         }
+
         this.tray.on(defaultClickEvent as Parameters<Tray['on']>[0], this.clicked.bind(this));
         this.tray.on('double-click', this.clicked.bind(this));
         this.tray.setToolTip(this._options.tooltip);
@@ -293,6 +300,7 @@ export class Menubar extends EventEmitter {
         if (this._options.index !== false) {
             await this._browserWindow.loadURL(this._options.index, this._options.loadUrlOptions);
         }
+
         this.emit('after-create-window');
     }
 

@@ -65,7 +65,6 @@ export default function ScoreSheet({
     );
 
     const fileInput = useRef<HTMLInputElement>(null);
-    const [submitting, setSubmitting] = useState(false);
 
     const head = team.find((member) => member.is_head);
     const editableRows = rows.filter((row) => row.editable);
@@ -201,6 +200,7 @@ export default function ScoreSheet({
                                 className="hidden"
                                 onChange={(event) => {
                                     const file = event.target.files?.[0];
+
                                     if (file) {
                                         upload(file);
                                         event.target.value = '';
@@ -235,7 +235,7 @@ export default function ScoreSheet({
                                     size="sm"
                                     variant="secondary"
                                     onClick={submitSheet}
-                                    disabled={submitting || editableRows.length === 0}
+                                    disabled={editableRows.length === 0}
                                 >
                                     <Send className="size-4" />
                                     Submit for review

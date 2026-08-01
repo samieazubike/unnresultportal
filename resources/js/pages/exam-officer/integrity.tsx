@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { ShieldCheck } from 'lucide-react';
-import { DataTable, type Column } from '@/components/data-table';
+import { DataTable  } from '@/components/data-table';
+import type {Column} from '@/components/data-table';
 import { GradeBadge, StatusBadge } from '@/components/result-badges';
 
 type TamperedResult = {
