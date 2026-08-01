@@ -15,12 +15,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('recommendations', function (Blueprint $table) {
+        // jsonb is PostgreSQL-only. SQLite only sees this schema because
+        // NativePHP migrates the desktop shell's local store on startup, and
+        // nothing there reads cached recommendations.
+        $json = Schema::getConnection()->getDriverName() === 'pgsql' ? 'jsonb' : 'json';
+
+        Schema::create('recommendations', function (Blueprint $table) use ($json) {
             $table->id();
             $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->string('session', 9);
-            $table->jsonb('facts');
-            $table->jsonb('flags');
+            $table->{$json}('facts');
+            $table->{$json}('flags');
             $table->text('body');
             $table->string('source', 20); // 'llm' or 'fallback'
             $table->timestamp('generated_at');

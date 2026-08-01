@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\DepartmentDashboardController;
 use App\Http\Controllers\Dashboard\LecturerDashboardController;
 use App\Http\Controllers\Dashboard\StudentDashboardController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DesktopShellController;
 use App\Http\Controllers\ResultEntryController;
 use App\Http\Controllers\ResultPublicationController;
 use App\Http\Controllers\ResultReviewController;
@@ -32,6 +33,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::inertia('/', 'welcome')->name('home');
+
+/*
+| Desktop shell only. The NativePHP window renders the web application over
+| HTTP, so these are the sole pages the packaged app serves itself — shown
+| when that server cannot be reached. Plain Blade rather than Inertia on
+| purpose: the offline screen must render without the Vite manifest or any
+| network round trip.
+*/
+Route::get('desktop/offline', [DesktopShellController::class, 'offline'])->name('desktop.offline');
+Route::get('desktop/retry', [DesktopShellController::class, 'retry'])->name('desktop.retry');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

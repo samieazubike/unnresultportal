@@ -1,5 +1,7 @@
 <?php
 
+use App\Providers\NativeAppServiceProvider;
+
 return [
     /**
      * The version of your app.
@@ -51,7 +53,7 @@ return [
      * takes care of bootstrapping your application and configuring
      * any global hotkeys, menus, windows, etc.
      */
-    'provider' => \App\Providers\NativeAppServiceProvider::class,
+    'provider' => NativeAppServiceProvider::class,
 
     /**
      * A list of environment keys that should be removed from the
@@ -59,6 +61,14 @@ return [
      * You may use wildcards to match multiple keys.
      */
     'cleanup_env_keys' => [
+        /*
+         * The desktop app renders the web application over HTTP and never
+         * opens the institutional database itself, so shipping the Postgres
+         * credentials to every installed copy would be gratuitous. Note that
+         * the '*_SECRET' wildcard below does not cover DB_PASSWORD.
+         */
+        'DB_*',
+
         'AWS_*',
         'AZURE_*',
         'GITHUB_*',

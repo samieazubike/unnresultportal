@@ -36,6 +36,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // SQLite cannot add a CHECK constraint after the fact. It only ever
+        // sees this schema because NativePHP migrates the desktop shell's
+        // local store on startup, and nothing there reads the results table.
+        if (Schema::getConnection()->getDriverName() !== 'pgsql') {
+            return;
+        }
+
         // Score ranges from §5, enforced at the database as well as in validation.
         DB::statement('ALTER TABLE results ADD CONSTRAINT results_ca_score_range CHECK (ca_score IS NULL OR (ca_score >= 0 AND ca_score <= 30))');
         DB::statement('ALTER TABLE results ADD CONSTRAINT results_exam_score_range CHECK (exam_score IS NULL OR (exam_score >= 0 AND exam_score <= 70))');

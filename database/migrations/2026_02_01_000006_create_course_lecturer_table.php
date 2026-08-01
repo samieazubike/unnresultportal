@@ -20,12 +20,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('course_lecturer', function (Blueprint $table) {
+        $postgres = $this->onPostgres();
+
+        Schema::create('course_lecturer', function (Blueprint $table) use ($postgres) {
             $table->id();
             $table->foreignId('course_id')->constrained('courses')->cascadeOnDelete();
             $table->foreignId('lecturer_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
+
+            if (! $postgres) {
+                $table->unique(['course_id', 'lecturer_id']);
+            }
         });
+
+        if (! $postgres) {
+            return;
+        }
 
         // A named UNIQUE constraint rather than Laravel's unique index: the
         // composite foreign key below must reference a unique constraint.
@@ -42,7 +52,22 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE courses DROP CONSTRAINT IF EXISTS courses_head_is_team_member');
+        if ($this->onPostgres()) {
+            DB::statement('ALTER TABLE courses DROP CONSTRAINT IF EXISTS courses_head_is_team_member');
+        }
+
         Schema::dropIfExists('course_lecturer');
+    }
+
+    /**
+     * The deferrable composite foreign key above is PostgreSQL-specific, and
+     * PostgreSQL is what the web application and the test suite run on. The
+     * desktop shell's local SQLite store never queries this table — it exists
+     * only because NativePHP migrates that file on startup, so the schema has
+     * to be creatable there without the constraint.
+     */
+    private function onPostgres(): bool
+    {
+        return Schema::getConnection()->getDriverName() === 'pgsql';
     }
 };

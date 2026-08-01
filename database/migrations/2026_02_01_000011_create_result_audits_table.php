@@ -14,15 +14,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('result_audits', function (Blueprint $table) {
+        // jsonb is PostgreSQL-only. SQLite only sees this schema because
+        // NativePHP migrates the desktop shell's local store on startup, and
+        // nothing there reads the audit trail.
+        $json = Schema::getConnection()->getDriverName() === 'pgsql' ? 'jsonb' : 'json';
+
+        Schema::create('result_audits', function (Blueprint $table) use ($json) {
             $table->id();
             $table->foreignId('result_id')->constrained('results')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('action', 40);
             $table->string('from_status', 20)->nullable();
             $table->string('to_status', 20)->nullable();
-            $table->jsonb('old_values')->nullable();
-            $table->jsonb('new_values')->nullable();
+            $table->{$json}('old_values')->nullable();
+            $table->{$json}('new_values')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->timestamp('created_at');
 

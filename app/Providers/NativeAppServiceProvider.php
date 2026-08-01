@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\PortalConnection;
 use Native\Desktop\Contracts\ProvidesPhpIni;
 use Native\Desktop\Facades\Window;
 
@@ -9,16 +10,17 @@ use Native\Desktop\Facades\Window;
  * The desktop deliverable (README §2, §14.13), packaged from the same
  * codebase as the web application.
  *
- * Architectural note worth stating plainly: NativePHP would normally ship an
- * embedded SQLite database, but this system's analytics are PostgreSQL-only —
- * the §6 CGPA query uses a named WINDOW clause and the §7 failure-rate query
- * uses COUNT(*) FILTER, neither of which SQLite can parse. The desktop build
- * therefore keeps DB_CONNECTION=pgsql and connects to the institutional
- * PostgreSQL server over the network. `database/nativephp.sqlite` remains for
- * NativePHP's own internal storage only.
+ * Architectural note worth stating plainly: the desktop app is a shell over
+ * the deployed web application, not a self-contained copy of it. The static
+ * PHP binary NativePHP bundles (vendor/nativephp/php-bin) is built without
+ * pdo_pgsql, so the desktop process cannot open the institutional PostgreSQL
+ * database at all. Pointing the window at the web app instead means every
+ * page it renders is served by the same Laravel application against the same
+ * database, through the same Inertia pages — no JSON API, which README §2
+ * rules out anyway.
  *
- * In other words, the desktop app is a client shell over the same Laravel
- * application, not a self-contained offline copy of the result database.
+ * `database/nativephp.sqlite` is left where NativePHP puts it and serves only
+ * NativePHP's own internals (queue and cache; sessions are forced to `file`).
  */
 class NativeAppServiceProvider implements ProvidesPhpIni
 {
@@ -27,13 +29,25 @@ class NativeAppServiceProvider implements ProvidesPhpIni
      */
     public function boot(): void
     {
-        Window::open()
+        $portal = app(PortalConnection::class);
+
+        $window = Window::open()
             ->title(config('app.name').' — Result Processing System')
             ->width(1440)
             ->height(900)
             ->minWidth(1024)
             ->minHeight(700)
             ->rememberState();
+
+        if ($portal->isReachable()) {
+            $window->url($portal->webUrl())->preventLeaveDomain();
+
+            return;
+        }
+
+        // No domain lock here: the offline page is served by the local app and
+        // has to be able to navigate out to the portal once it comes back.
+        $window->route('desktop.offline');
     }
 
     /**

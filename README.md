@@ -29,7 +29,7 @@ The contribution being claimed is the *integration* of the two, with role-specif
 | Components | **shadcn/ui** | Copied into the repo, not installed as a black box |
 | Charts | **shadcn/ui chart** (wraps **Recharts**) | All visualizations |
 | PDF | **DomPDF** (`barryvdh/laravel-dompdf`) | Transcript generation |
-| Desktop | **NativePHP** | Secondary deliverable, packaged from the same codebase |
+| Desktop | **NativePHP** | Secondary deliverable: an Electron shell over the running web app |
 | Bundler | **Vite** | Laravel default |
 
 ### Hard architectural rules
@@ -303,21 +303,19 @@ A demo where every chart is flat or empty is worse than no demo.
 
 ## 13. Setup
 
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-# set DB_CONNECTION=pgsql and credentials in .env
-php artisan migrate --seed
-npm install
-npm run dev          # Vite
-php artisan serve    # http://localhost:8000
-```
+See **[SETUP.md](SETUP.md)** — prerequisites, install, environment reference,
+demo accounts, running the web and desktop apps, tests, and troubleshooting.
 
-Desktop build (secondary, do last):
-```bash
-php artisan native:serve
-```
+The short version: `composer install`, `cp .env.example .env`,
+`php artisan key:generate`, create the PostgreSQL database,
+`php artisan migrate --seed`, `npm install && npm run build`, `composer dev`.
+
+Desktop is secondary, do it last. The window loads the web application over
+HTTP rather than querying the database itself: the static PHP binary NativePHP
+bundles is built without `pdo_pgsql`, so the desktop process cannot open the
+PostgreSQL database directly. That also means the desktop app uses exactly the
+same database, pages and session auth as the web app — there is no separate
+API, per §2.
 
 ---
 
