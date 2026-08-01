@@ -17,7 +17,6 @@ createInertiaApp({
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('settings/'):
-            case name.startsWith('teams/'):
                 return [AppLayout, SettingsLayout];
             default:
                 return AppLayout;
@@ -33,7 +32,7 @@ createInertiaApp({
         );
     },
     progress: {
-        color: '#4B5563',
+        color: 'oklch(0.588 0.196 258)',
     },
 });
 

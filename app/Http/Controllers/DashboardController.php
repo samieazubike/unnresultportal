@@ -2,37 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TeamInvitation;
+use App\Enums\UserRole;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
+/**
+ * Sends each user to the dashboard for their role (README §1: "role-specific
+ * dashboards" are part of the contribution being claimed).
+ */
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request): RedirectResponse
     {
-        $email = strtolower($request->user()->email);
-
-        $pendingInvitations = TeamInvitation::query()
-            ->with(['inviter', 'team'])
-            ->whereRaw('LOWER(email) = ?', [$email])
-            ->whereNull('accepted_at')
-            ->where(fn ($query) => $query
-                ->whereNull('expires_at')
-                ->orWhere('expires_at', '>=', now()))
-            ->latest()
-            ->get()
-            ->map(fn (TeamInvitation $invitation) => [
-                'code' => $invitation->code,
-                'inviterName' => $invitation->inviter->name,
-                'team' => [
-                    'name' => $invitation->team->name,
-                    'slug' => $invitation->team->slug,
-                ],
-            ]);
-
-        return Inertia::render('dashboard', [
-            'pendingInvitations' => $pendingInvitations,
-        ]);
+        return redirect()->route(match ($request->user()->role) {
+            UserRole::Student => 'student.dashboard',
+            UserRole::Lecturer => 'lecturer.dashboard',
+            UserRole::ExamOfficer, UserRole::IctDirector => 'department.dashboard',
+            UserRole::Admin => 'admin.dashboard',
+        });
     }
 }
