@@ -85,7 +85,6 @@ router.post('/print', async (req, res) => {
                 console.error('Print job failed:', errorType);
                 res.sendStatus(500);
             }
-
             if (printWindow) {
                 printWindow.close(); // Close the window and the process
                 printWindow = null; // Free memory

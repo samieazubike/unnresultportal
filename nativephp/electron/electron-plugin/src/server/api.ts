@@ -1,8 +1,9 @@
-
-import type { Server } from 'net';
 import bodyParser from 'body-parser';
 import express from 'express';
 import getPort, { portNumbers } from 'get-port';
+import middleware from './api/middleware.js';
+
+import { Server } from 'net';
 import alertRoutes from './api/alert.js';
 import appRoutes from './api/app.js';
 import autoUpdaterRoutes from './api/autoUpdater.js';
@@ -16,7 +17,6 @@ import dockRoutes from './api/dock.js';
 import globalShortcutRoutes from './api/globalShortcut.js';
 import menuRoutes from './api/menu.js';
 import menuBarRoutes from './api/menuBar.js';
-import middleware from './api/middleware.js';
 import notificationRoutes from './api/notification.js';
 import powerMonitorRoutes from './api/powerMonitor.js';
 import processRoutes from './api/process.js';

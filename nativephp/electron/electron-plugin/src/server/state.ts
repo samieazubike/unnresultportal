@@ -1,4 +1,4 @@
-import type { BrowserWindow, Tray, UtilityProcess } from 'electron';
+import { BrowserWindow, Tray, UtilityProcess } from 'electron';
 import Store from 'electron-store';
 import type { Menubar } from '../libs/menubar/index.js';
 import { notifyLaravel } from './utils.js';

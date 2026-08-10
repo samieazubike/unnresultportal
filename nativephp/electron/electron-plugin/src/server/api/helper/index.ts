@@ -33,7 +33,6 @@ export function compileMenu(item) {
 
             if (item.openInBrowser) {
                 shell.openExternal(item.url);
-
                 return;
             }
 

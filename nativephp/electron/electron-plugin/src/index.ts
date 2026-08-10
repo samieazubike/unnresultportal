@@ -1,11 +1,9 @@
-import type { ChildProcessWithoutNullStreams } from 'child_process';
-import { resolve } from 'path';
-import { initialize } from '@electron/remote/main/index.js';
 import { electronApp, optimizer } from '@electron-toolkit/utils';
-import type CrossProcessExports from 'electron';
-import { app, powerMonitor, session } from 'electron';
-import electronUpdater from 'electron-updater';
+import { initialize } from '@electron/remote/main/index.js';
+import { ChildProcessWithoutNullStreams } from 'child_process';
+import CrossProcessExports, { app, powerMonitor, session } from 'electron';
 import killSync from 'kill-sync';
+import { resolve } from 'path';
 import ps from 'ps-node';
 import { stopAllProcesses } from './server/api/childProcess.js';
 import {
@@ -20,6 +18,7 @@ import state from './server/state.js';
 import { notifyLaravel } from './server/utils.js';
 
 // Workaround for CommonJS module
+import electronUpdater from 'electron-updater';
 const { autoUpdater } = electronUpdater;
 
 class NativePHP {
@@ -178,19 +177,14 @@ class NativePHP {
              */
             if (process.platform !== 'darwin') {
                 const gotTheLock = app.requestSingleInstanceLock();
-
                 if (!gotTheLock) {
                     app.quit();
-
                     return;
                 } else {
                     app.on('second-instance', (event, commandLine) => {
                         // Someone tried to run a second instance, we should focus our window.
                         if (this.mainWindow) {
-                            if (this.mainWindow.isMinimized()) {
-this.mainWindow.restore();
-}
-
+                            if (this.mainWindow.isMinimized()) this.mainWindow.restore();
                             this.mainWindow.focus();
                         }
 
@@ -256,7 +250,6 @@ this.mainWindow.restore();
             clearInterval(this.schedulerInterval);
             this.schedulerInterval = null;
         }
-
         killScheduler();
     }
 
@@ -283,13 +276,8 @@ this.mainWindow.restore();
         this.processes
             .filter((p) => p !== undefined)
             .forEach((process) => {
-                if (!process || !process.pid) {
-return;
-}
-
-                if (process.killed && process.exitCode !== null) {
-return;
-}
+                if (!process || !process.pid) return;
+                if (process.killed && process.exitCode !== null) return;
 
                 try {
                     // @ts-ignore

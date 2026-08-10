@@ -4,8 +4,7 @@
 
 /** */
 
-import {   screen as electronScreen } from 'electron';
-import type {Rectangle, Tray} from 'electron';
+import { type Rectangle, type Tray, screen as electronScreen } from 'electron';
 
 const isLinux = process.platform === 'linux';
 
@@ -34,10 +33,7 @@ export function taskbarLocation(tray: Tray): TaskbarLocation {
     // TASKBAR LEFT
     if (workArea.x > 0) {
         // Most likely Ubuntu hence assuming the window should be on top
-        if (isLinux && workArea.y > 0) {
-return 'top';
-}
-
+        if (isLinux && workArea.y > 0) return 'top';
         // The workspace starts more on the right
         return 'left';
     }
@@ -87,15 +83,12 @@ export function getWindowPosition(tray: Tray): WindowPosition {
             if (traySide === 'top') {
                 return isLinux ? 'topRight' : 'trayCenter';
             }
-
             if (traySide === 'bottom') {
                 return 'bottomRight';
             }
-
             if (traySide === 'left') {
                 return 'bottomLeft';
             }
-
             if (traySide === 'right') {
                 return 'bottomRight';
             }

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git --no-pager diff database/seeders/DatabaseSeeder.php)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

@@ -53,21 +53,21 @@ class DatabaseSeeder extends Seeder
 
         $departments = $this->seedFacultiesAndDepartments();
         $lecturers = $this->seedStaff();
-        $courses = $this->seedCourses($departments, $lecturers);
-        $students = $this->seedStudents($departments);
+        // $courses = $this->seedCourses($departments, $lecturers);
+        // $students = $this->seedStudents($departments);
 
-        $this->seedResults($students, $courses);
-        $this->seedDecliningStudent($departments['Computer Science'], $courses);
-        $this->seedWorkInProgress($students, $courses);
+        // $this->seedResults($students, $courses);
+        // $this->seedDecliningStudent($departments['Computer Science'], $courses);
+        // $this->seedWorkInProgress($students, $courses);
 
-        $this->command?->info(sprintf(
-            'Seeded %d students, %d courses, %d results (%d awaiting review, %d awaiting release).',
-            Student::count(),
-            Course::count(),
-            Result::count(),
-            Result::where('status', ResultStatus::Submitted)->count(),
-            Result::where('status', ResultStatus::Approved)->count(),
-        ));
+        // $this->command?->info(sprintf(
+        //     'Seeded %d students, %d courses, %d results (%d awaiting review, %d awaiting release).',
+        //     Student::count(),
+        //     Course::count(),
+        //     Result::count(),
+        //     Result::where('status', ResultStatus::Submitted)->count(),
+        //     Result::where('status', ResultStatus::Approved)->count(),
+        // ));
     }
 
     /**

@@ -189,7 +189,6 @@ vi.mock('electron-store', () => {
 // Create empty router mocks for all API routes
 const createRouterMock = () => {
     const router = express.Router();
-
     return { default: router };
 };
 

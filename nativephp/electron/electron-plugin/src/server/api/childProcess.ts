@@ -1,9 +1,8 @@
-import { join } from 'path';
-import { fileURLToPath } from 'url';
-import type { UtilityProcess } from 'electron';
-import { utilityProcess } from 'electron';
+import { utilityProcess, UtilityProcess } from 'electron';
 import express from 'express';
 import killSync from 'kill-sync';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
 import { getAppPath, getDefaultEnvironmentVariables, getDefaultPhpIniSettings, runningSecureBuild } from '../php.js';
 import state from '../state.js';
 import { notifyLaravel } from '../utils.js';
@@ -257,19 +256,16 @@ router.post('/restart', async (req, res) => {
 
     if (settings === undefined) {
         res.sendStatus(410);
-
         return;
     }
 
     // Wait for the process to stop with a timeout of 5s
     const waitForProcessDeletion = async (timeout, retry) => {
         const start = Date.now();
-
         while (state.processes[alias] !== undefined) {
             if (Date.now() - start > timeout) {
                 return;
             }
-
             await new Promise((resolve) => setTimeout(resolve, retry));
         }
     };
@@ -288,7 +284,6 @@ router.get('/get/:alias', (req, res) => {
 
     if (proc === undefined) {
         res.sendStatus(410);
-
         return;
     }
 
@@ -306,7 +301,6 @@ router.post('/message', (req, res) => {
 
     if (proc === undefined) {
         res.sendStatus(200);
-
         return;
     }
 

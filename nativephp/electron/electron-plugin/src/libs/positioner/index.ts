@@ -1,6 +1,6 @@
 'use strict';
-import type { Screen , BrowserWindow} from 'electron';
-import { screen } from 'electron';
+import type { Screen } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 
 class Positioner {
     browserWindow?: BrowserWindow;
@@ -15,9 +15,7 @@ class Positioner {
         const screenSize = this._getScreenSize(trayPosition);
         const windowSize = this._getWindowSize();
 
-        if (trayPosition === undefined) {
-trayPosition = {};
-}
+        if (trayPosition === undefined) trayPosition = {};
 
         // Positions
         const positions = {

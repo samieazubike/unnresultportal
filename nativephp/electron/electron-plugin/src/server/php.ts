@@ -4,13 +4,13 @@ import fs_extra from 'fs-extra';
 const { copySync, mkdirpSync } = fs_extra;
 
 import { execFile, spawn, spawnSync } from 'child_process';
-import { createServer } from 'net';
-import { join } from 'path';
-import { promisify } from 'util';
 import { app } from 'electron';
 import Store from 'electron-store';
 import getPort, { portNumbers } from 'get-port';
-import type { ProcessResult } from './ProcessResult.js';
+import { createServer } from 'net';
+import { join } from 'path';
+import { promisify } from 'util';
+import { ProcessResult } from './ProcessResult.js';
 import state from './state.js';
 
 // TODO: maybe in dev, don't go to the userData folder and stay in the Laravel app folder
@@ -249,7 +249,6 @@ function getAppPath() {
     if (process.env.NODE_ENV === 'development' || argumentEnv.TESTING == 1) {
         appPath = process.env.APP_PATH || argumentEnv.APP_PATH;
     }
-
     return appPath;
 }
 
@@ -392,7 +391,6 @@ async function serveApp(secret, apiPort, phpIniSettings): Promise<ProcessResult>
 
     const nightwatchToken = getNightwatchToken(appPath);
     let phpNightWatchPort: number | undefined;
-
     if (nightwatchToken && hasNightwatchInstalled(appPath)) {
         phpNightWatchPort = await getPhpPort();
         env.NIGHTWATCH_TOKEN = nightwatchToken;

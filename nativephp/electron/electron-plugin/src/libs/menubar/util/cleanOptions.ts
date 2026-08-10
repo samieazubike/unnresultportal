@@ -4,9 +4,9 @@
 
 /** */
 
+import { app } from 'electron';
 import path from 'path';
 import url from 'url';
-import { app } from 'electron';
 
 import type { Options } from '../types.js';
 
@@ -25,15 +25,12 @@ export function cleanOptions(opts?: Partial<Options>): Options {
     if (options.activateWithApp === undefined) {
         options.activateWithApp = true;
     }
-
     if (!options.dir) {
         options.dir = app.getAppPath();
     }
-
     if (!path.isAbsolute(options.dir)) {
         options.dir = path.resolve(options.dir);
     }
-
     // Note: options.index can be `false`
     if (options.index === undefined) {
         options.index = url.format({
@@ -42,7 +39,6 @@ export function cleanOptions(opts?: Partial<Options>): Options {
             slashes: true,
         });
     }
-
     options.loadUrlOptions = options.loadUrlOptions || {};
 
     options.tooltip = options.tooltip || '';
