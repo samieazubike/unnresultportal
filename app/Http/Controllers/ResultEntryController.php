@@ -74,7 +74,7 @@ class ResultEntryController extends Controller
         $semester = (int) $request->query('semester', 1);
 
         $registrations = Registration::query()
-            ->with(['student.user', 'result.audits.user'])
+            ->with(['student', 'result.audits.user'])
             ->where('course_id', $course->getKey())
             ->where('session', $session)
             ->where('semester', $semester)
@@ -103,7 +103,7 @@ class ResultEntryController extends Controller
             'rows' => $registrations->map(fn (Registration $registration) => [
                 'registration_id' => $registration->id,
                 'reg_number' => $registration->student->reg_number,
-                'student_name' => $registration->student->user->name,
+                'student_name' => $registration->student->name,
                 'ca_score' => $registration->result?->ca_score,
                 'exam_score' => $registration->result?->exam_score,
                 'total_score' => $registration->result?->total_score,

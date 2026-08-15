@@ -28,7 +28,7 @@ class ScoreSheetTemplate
         $sheet->getStyle('A1:D1')->getFont()->setBold(true);
 
         $registrations = Registration::query()
-            ->with('student.user')
+            ->with('student')
             ->where('course_id', $course->getKey())
             ->where('session', $session)
             ->where('semester', $semester)
@@ -40,7 +40,7 @@ class ScoreSheetTemplate
         foreach ($registrations as $registration) {
             $sheet->fromArray([[
                 $registration->student->reg_number,
-                $registration->student->user->name,
+                $registration->student->name,
                 $registration->result?->ca_score,
                 $registration->result?->exam_score,
             ]], null, "A{$row}");

@@ -90,7 +90,7 @@ class ResultReviewController extends Controller
             'rows' => $results->map(fn (Result $result) => [
                 'id' => $result->id,
                 'reg_number' => $result->registration->student->reg_number,
-                'student_name' => $result->registration->student->user->name,
+                'student_name' => $result->registration->student->name,
                 'ca_score' => $result->ca_score,
                 'exam_score' => $result->exam_score,
                 'total_score' => $result->total_score,
@@ -175,7 +175,7 @@ class ResultReviewController extends Controller
     private function sheet(int $courseId, string $session, int $semester, ResultStatus $status)
     {
         return Result::query()
-            ->with(['registration.student.user', 'registration.course.head', 'audits'])
+            ->with(['registration.student', 'registration.course.head', 'audits'])
             ->where('status', $status)
             ->whereHas('registration', fn ($query) => $query
                 ->where('course_id', $courseId)

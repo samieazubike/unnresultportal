@@ -132,7 +132,7 @@ class ResultPublicationController extends Controller
         abort_unless($request->user()->canPublishResults(), 403);
 
         $signed = Result::query()
-            ->with(['registration.course', 'registration.student.user', 'signature', 'audits.user'])
+            ->with(['registration.course', 'registration.student', 'signature', 'audits.user'])
             ->whereHas('signature')
             ->get();
 
@@ -143,7 +143,7 @@ class ResultPublicationController extends Controller
                 'id' => $result->id,
                 'course_code' => $result->registration->course->course_code,
                 'reg_number' => $result->registration->student->reg_number,
-                'student_name' => $result->registration->student->user->name,
+                'student_name' => $result->registration->student->name,
                 'session' => $result->registration->session,
                 'semester' => $result->registration->semester,
                 'status' => $result->status->value,

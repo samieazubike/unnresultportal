@@ -6,18 +6,13 @@ import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 
-type Props = {
-    passwordRules: string;
-};
-
-export default function Register({ passwordRules }: Props) {
+export default function Register() {
     return (
         <>
             <Head title="Register" />
 
             <Form
                 {...store.form()}
-                resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 className="flex flex-col gap-6"
             >
@@ -25,11 +20,13 @@ export default function Register({ passwordRules }: Props) {
                     <>
                         <div className="grid gap-4">
                             <AuthField
-                                label="Full name"
-                                name="name"
-                                placeholder="Full name"
-                                autoComplete="name"
-                                error={errors.name}
+                                label="Registration number"
+                                name="reg_number"
+                                placeholder="Registration number, e.g. 2021/000123"
+                                autoComplete="off"
+                                autoCapitalize="off"
+                                autoCorrect="off"
+                                error={errors.reg_number}
                                 required
                                 autoFocus
                                 tabIndex={1}
@@ -39,51 +36,27 @@ export default function Register({ passwordRules }: Props) {
                                 label="Email address"
                                 type="email"
                                 name="email"
-                                placeholder="Email address"
+                                placeholder="Email address you can open now"
                                 autoComplete="email"
                                 error={errors.email}
                                 required
                                 tabIndex={2}
-                            />
-
-                            <AuthField
-                                label="Password"
-                                type="password"
-                                name="password"
-                                placeholder="Password"
-                                autoComplete="new-password"
-                                passwordrules={passwordRules}
-                                error={errors.password}
-                                required
-                                tabIndex={3}
-                            />
-
-                            <AuthField
-                                label="Confirm password"
-                                type="password"
-                                name="password_confirmation"
-                                placeholder="Confirm password"
-                                autoComplete="new-password"
-                                passwordrules={passwordRules}
-                                error={errors.password_confirmation}
-                                required
-                                tabIndex={4}
                             />
                         </div>
 
                         <Button
                             type="submit"
                             className="h-12 w-full rounded-lg"
-                            tabIndex={5}
+                            tabIndex={3}
                             data-test="register-user-button"
                         >
                             {processing && <Spinner />}
-                            Create account
+                            Send verification code
                         </Button>
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} tabIndex={4}>
                                 Log in
                             </TextLink>
                         </div>
@@ -95,6 +68,7 @@ export default function Register({ passwordRules }: Props) {
 }
 
 Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+    title: 'Claim your student account',
+    description:
+        'Your department has already registered you. Enter the registration number on your student ID and we will email you a code.',
 };

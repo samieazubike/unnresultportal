@@ -1,9 +1,9 @@
-import path from 'path';
+import NativePHP from '#plugin';
 import { app } from 'electron';
+import path from 'path';
 
 // Inherit User's PATH in Process & ChildProcess
 import fixPath from 'fix-path';
-import NativePHP from '#plugin';
 fixPath();
 
 const buildPath = path.resolve(import.meta.dirname, import.meta.env.MAIN_VITE_NATIVEPHP_BUILD_PATH);

@@ -224,6 +224,7 @@ class DatabaseSeeder extends Seeder
 
                     $students[] = Student::query()->create([
                         'user_id' => $user->id,
+                        'name' => $user->name,
                         'reg_number' => sprintf('%d/%06d', $entryYear, $sequence++),
                         'dept_id' => $department->id,
                         'entry_year' => $entryYear,
@@ -357,6 +358,7 @@ class DatabaseSeeder extends Seeder
 
         $student = Student::query()->create([
             'user_id' => $user->id,
+            'name' => $user->name,
             'reg_number' => '2021/000001',
             'dept_id' => $department->id,
             'entry_year' => 2021,

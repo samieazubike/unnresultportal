@@ -32,7 +32,7 @@ class TranscriptController extends Controller
 
         $this->authorize('downloadTranscript', $student);
 
-        $student->load(['user', 'department.faculty']);
+        $student->load(['department.faculty']);
 
         $sessions = $this->portal->publishedResults($student);
         $trend = $this->visualization->cgpaTrend($student->getKey());

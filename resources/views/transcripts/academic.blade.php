@@ -107,7 +107,7 @@
 <table class="particulars">
     <tr>
         <td class="label">Name</td>
-        <td class="value">{{ $student->user->name }}</td>
+        <td class="value">{{ $student->name }}</td>
         <td class="label">Registration No.</td>
         <td class="value">{{ $student->reg_number }}</td>
     </tr>

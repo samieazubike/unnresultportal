@@ -43,7 +43,7 @@ class ExcelResultImporter
         // Registrations for this sheet, keyed by registration number: the
         // only students whose scores may legitimately appear in this file.
         $registrations = Registration::query()
-            ->with('student.user')
+            ->with('student')
             ->where('course_id', $course->getKey())
             ->where('session', $session)
             ->where('semester', $semester)
@@ -94,7 +94,7 @@ class ExcelResultImporter
                 'row' => $rowNumber,
                 'registration_id' => $registration->getKey(),
                 'reg_number' => $registration->student->reg_number,
-                'student_name' => $registration->student->user->name,
+                'student_name' => $registration->student->name,
                 'ca_score' => (float) $caRaw,
                 'exam_score' => (float) $examRaw,
             ];

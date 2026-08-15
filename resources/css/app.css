@@ -1,21 +1,28 @@
 @import 'tailwindcss';
 
+/* @import 'tw-animate-css'; */
+
 @import 'tw-animate-css';
+
+@import 'shadcn/tailwind.css';
+
+@import '@fontsource-variable/inter';
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-    --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+@theme inline {
+    --font-sans: 'Inter Variable', sans-serif;
 
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -65,97 +72,102 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+    --font-heading: var(--font-sans);
 }
 
 /*
- * Palette: University of Nigeria green.
+ * Palette: shadcn's neutral scale, carrying University of Nigeria green.
  *
- * The brand colour is #056839, the deep forest green of the UNN portal, which
- * converts to oklch(0.455 0.112 155). Every other token derives from that
- * hue: the neutrals
- * carry a trace of it (chroma 0.003–0.006 at hue 155) so the greys sit under
- * the green rather than leaning blue against it.
+ * The surfaces, borders and greys are the untinted neutrals that come with the
+ * shadcn preset. The brand colour is #056839 — the deep forest green of the UNN
+ * portal, oklch(0.455 0.112 155) — and it is confined to the tokens that are
+ * meant to read as "this application": primary, the focus ring, the sidebar's
+ * active state, and the leading chart series.
  *
  * Chart hues run green → teal → amber → blue → violet. Green leads so a
- * single-series chart is on-brand without being told; blue occupies the slot
- * the old green had, so no two series share a hue.
+ * single-series chart is on-brand without being told; no two series share a
+ * hue, which the preset's monochrome ramp could not promise.
+ *
+ * --success and --warning are ours, not shadcn's: result badges, stat cards and
+ * the announcement bar depend on them, so they must survive any future
+ * `shadcn apply`. Check them after one.
  */
 :root {
-    --background: oklch(0.976 0.004 155);
-    --foreground: oklch(0.21 0.018 155);
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.21 0.018 155);
+    --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.21 0.018 155);
+    --popover-foreground: oklch(0.145 0 0);
     --primary: oklch(0.455 0.112 155);
     --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.968 0.006 155);
-    --secondary-foreground: oklch(0.28 0.03 155);
-    --muted: oklch(0.974 0.004 155);
-    --muted-foreground: oklch(0.53 0.018 155);
-    --accent: oklch(0.952 0.019 155);
-    --accent-foreground: oklch(0.365 0.10 155);
-    --destructive: oklch(0.593 0.216 27);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.99 0 0);
     --success: oklch(0.61 0.15 158);
     --success-foreground: oklch(0.99 0 0);
     --warning: oklch(0.75 0.15 78);
     --warning-foreground: oklch(0.26 0.05 78);
-    --border: oklch(0.925 0.006 155);
-    --input: oklch(0.925 0.006 155);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
     --ring: oklch(0.455 0.112 155);
     --chart-1: oklch(0.455 0.112 155);
     --chart-2: oklch(0.7 0.12 195);
     --chart-3: oklch(0.78 0.15 78);
     --chart-4: oklch(0.6 0.17 258);
     --chart-5: oklch(0.6 0.2 300);
-    --radius: 0.875rem;
-    --sidebar: oklch(1 0 0);
-    --sidebar-foreground: oklch(0.32 0.02 155);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.455 0.112 155);
     --sidebar-primary-foreground: oklch(0.99 0 0);
-    --sidebar-accent: oklch(0.962 0.012 155);
-    --sidebar-accent-foreground: oklch(0.21 0.018 155);
-    --sidebar-border: oklch(0.93 0.006 155);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.455 0.112 155);
 }
 
 .dark {
-    --background: oklch(0.17 0.012 155);
-    --foreground: oklch(0.96 0.004 155);
-    --card: oklch(0.216 0.015 155);
-    --card-foreground: oklch(0.96 0.004 155);
-    --popover: oklch(0.216 0.015 155);
-    --popover-foreground: oklch(0.96 0.004 155);
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.63 0.125 155);
     --primary-foreground: oklch(0.15 0.02 155);
-    --secondary: oklch(0.27 0.018 155);
-    --secondary-foreground: oklch(0.96 0.004 155);
-    --muted: oklch(0.262 0.016 155);
-    --muted-foreground: oklch(0.7 0.018 155);
-    --accent: oklch(0.29 0.042 155);
-    --accent-foreground: oklch(0.84 0.09 155);
-    --destructive: oklch(0.63 0.2 25);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
     --destructive-foreground: oklch(0.98 0 0);
     --success: oklch(0.7 0.14 158);
     --success-foreground: oklch(0.16 0.02 158);
     --warning: oklch(0.8 0.14 78);
     --warning-foreground: oklch(0.2 0.04 78);
-    --border: oklch(0.3 0.016 155);
-    --input: oklch(0.3 0.016 155);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.63 0.125 155);
     --chart-1: oklch(0.63 0.125 155);
     --chart-2: oklch(0.75 0.12 195);
     --chart-3: oklch(0.8 0.14 78);
     --chart-4: oklch(0.68 0.16 258);
     --chart-5: oklch(0.68 0.18 300);
-    --sidebar: oklch(0.2 0.014 155);
-    --sidebar-foreground: oklch(0.9 0.008 155);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.63 0.125 155);
     --sidebar-primary-foreground: oklch(0.15 0.02 155);
-    --sidebar-accent: oklch(0.27 0.018 155);
-    --sidebar-accent-foreground: oklch(0.96 0.004 155);
-    --sidebar-border: oklch(0.3 0.016 155);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.63 0.125 155);
 }
 
@@ -171,10 +183,13 @@
 
 @layer base {
     * {
-        @apply border-border;
+        @apply border-border outline-ring/50;
     }
 
     body {
         @apply bg-background text-foreground;
+    }
+    html {
+        @apply font-sans;
     }
 }

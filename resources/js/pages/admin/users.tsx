@@ -1,6 +1,19 @@
-import { Head, router } from '@inertiajs/react';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { AlertTriangle, Download, Plus, Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
+import InputError from '@/components/input-error';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    importMethod as importRoster,
+    store,
+    template,
+} from '@/routes/admin/students';
+import type { ImportError } from '@/types';
 
 type UserRow = {
     id: number;
@@ -12,6 +25,17 @@ type UserRow = {
     department: string | null;
 };
 
+type StudentRow = {
+    id: number;
+    name: string;
+    reg_number: string;
+    department: string;
+    entry_year: number;
+    claimed: boolean;
+};
+
+type Department = { id: number; dept_name: string };
+
 type Paginated<T> = {
     data: T[];
     total: number;
@@ -22,11 +46,42 @@ type Paginated<T> = {
 export default function AdminUsers({
     users,
     roles,
+    departments,
+    students,
 }: {
     users: Paginated<UserRow>;
     roles: { value: string; label: string }[];
-    departments: { id: number; dept_name: string }[];
+    departments: Department[];
+    students: StudentRow[];
 }) {
+    const page = usePage();
+    const importErrors = (page.props.importErrors ?? []) as ImportError[];
+
+    const fileInput = useRef<HTMLInputElement>(null);
+    const currentYear = new Date().getFullYear();
+
+    const rosterForm = useForm({
+        name: '',
+        reg_number: '',
+        dept_id: departments[0]?.id ?? 0,
+        entry_year: currentYear,
+    });
+
+    // The import applies one department and entry year to the whole sheet, so
+    // they are chosen here rather than guessed from the file.
+    const [importDept, setImportDept] = useState<number>(
+        departments[0]?.id ?? 0,
+    );
+    const [importYear, setImportYear] = useState<number>(currentYear);
+
+    const uploadRoster = (file: File) => {
+        router.post(
+            importRoster.url(),
+            { sheet: file, dept_id: importDept, entry_year: importYear },
+            { preserveScroll: true, forceFormData: true },
+        );
+    };
+
     const columns: Column<UserRow>[] = [
         {
             key: 'name',
@@ -75,11 +130,279 @@ export default function AdminUsers({
         },
     ];
 
+    const studentColumns: Column<StudentRow>[] = [
+        {
+            key: 'reg_number',
+            header: 'Reg. number',
+            cell: (row) => (
+                <span className="font-medium">{row.reg_number}</span>
+            ),
+        },
+        { key: 'name', header: 'Name' },
+        { key: 'department', header: 'Department' },
+        { key: 'entry_year', header: 'Entry year', align: 'center' },
+        {
+            key: 'claimed',
+            header: 'Account',
+            align: 'right',
+            sortValue: (row) => (row.claimed ? 1 : 0),
+            cell: (row) => (
+                <Badge variant={row.claimed ? 'secondary' : 'outline'}>
+                    {row.claimed ? 'Claimed' : 'Unclaimed'}
+                </Badge>
+            ),
+        },
+    ];
+
     return (
         <>
             <Head title="Users" />
 
             <div className="flex flex-col gap-4 p-4">
+                <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
+                    <h2 className="text-sm font-semibold">Student roster</h2>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                        Students are recorded here first and claim their own
+                        account afterwards with their registration number. No
+                        password is set on their behalf.
+                    </p>
+
+                    <div className="mt-3 grid gap-4 lg:grid-cols-2">
+                        <form
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                rosterForm.post(store.url(), {
+                                    preserveScroll: true,
+                                    onSuccess: () =>
+                                        rosterForm.reset('name', 'reg_number'),
+                                });
+                            }}
+                            className="flex flex-col gap-3"
+                        >
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <Label htmlFor="roster_name">Name</Label>
+                                    <Input
+                                        id="roster_name"
+                                        value={rosterForm.data.name}
+                                        onChange={(e) =>
+                                            rosterForm.setData(
+                                                'name',
+                                                e.target.value,
+                                            )
+                                        }
+                                    />
+                                    <InputError
+                                        message={rosterForm.errors.name}
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="roster_reg_number">
+                                        Reg. number
+                                    </Label>
+                                    <Input
+                                        id="roster_reg_number"
+                                        placeholder="2021/000123"
+                                        value={rosterForm.data.reg_number}
+                                        onChange={(e) =>
+                                            rosterForm.setData(
+                                                'reg_number',
+                                                e.target.value,
+                                            )
+                                        }
+                                    />
+                                    <InputError
+                                        message={rosterForm.errors.reg_number}
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="roster_dept_id">
+                                        Department
+                                    </Label>
+                                    <select
+                                        id="roster_dept_id"
+                                        value={rosterForm.data.dept_id}
+                                        onChange={(e) =>
+                                            rosterForm.setData(
+                                                'dept_id',
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                                    >
+                                        {departments.map((department) => (
+                                            <option
+                                                key={department.id}
+                                                value={department.id}
+                                            >
+                                                {department.dept_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError
+                                        message={rosterForm.errors.dept_id}
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="roster_entry_year">
+                                        Entry year
+                                    </Label>
+                                    <Input
+                                        id="roster_entry_year"
+                                        type="number"
+                                        min={1960}
+                                        max={currentYear + 1}
+                                        value={rosterForm.data.entry_year}
+                                        onChange={(e) =>
+                                            rosterForm.setData(
+                                                'entry_year',
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                    />
+                                    <InputError
+                                        message={rosterForm.errors.entry_year}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <Button
+                                    type="submit"
+                                    disabled={rosterForm.processing}
+                                >
+                                    <Plus className="size-4" />
+                                    Add student
+                                </Button>
+                            </div>
+                        </form>
+
+                        <div className="flex flex-col gap-3 rounded-lg bg-muted/50 p-3">
+                            <p className="text-xs text-muted-foreground">
+                                Or upload a whole cohort. Every row is checked
+                                before anything is written — if one row is
+                                wrong, nothing is added.
+                            </p>
+
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <Label htmlFor="import_dept_id">
+                                        Department for this sheet
+                                    </Label>
+                                    <select
+                                        id="import_dept_id"
+                                        value={importDept}
+                                        onChange={(e) =>
+                                            setImportDept(
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                                    >
+                                        {departments.map((department) => (
+                                            <option
+                                                key={department.id}
+                                                value={department.id}
+                                            >
+                                                {department.dept_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="import_entry_year">
+                                        Entry year
+                                    </Label>
+                                    <Input
+                                        id="import_entry_year"
+                                        type="number"
+                                        min={1960}
+                                        max={currentYear + 1}
+                                        value={importYear}
+                                        onChange={(e) =>
+                                            setImportYear(
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                                <Button asChild variant="outline" size="sm">
+                                    <a href={template.url()}>
+                                        <Download className="size-4" />
+                                        Template
+                                    </a>
+                                </Button>
+
+                                <input
+                                    ref={fileInput}
+                                    type="file"
+                                    accept=".xlsx,.xls"
+                                    className="hidden"
+                                    onChange={(event) => {
+                                        const file = event.target.files?.[0];
+
+                                        if (file) {
+                                            uploadRoster(file);
+                                            event.target.value = '';
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => fileInput.current?.click()}
+                                >
+                                    <Upload className="size-4" />
+                                    Upload roster
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {importErrors.length > 0 ? (
+                    <section className="rounded-[var(--radius)] border border-red-500/25 bg-red-50 p-4 dark:bg-red-500/10">
+                        <header className="flex items-center gap-2">
+                            <AlertTriangle className="size-4 text-red-700 dark:text-red-300" />
+                            <h2 className="text-sm font-semibold text-red-900 dark:text-red-200">
+                                {importErrors.length} row
+                                {importErrors.length === 1 ? '' : 's'} could not
+                                be imported — nothing was saved
+                            </h2>
+                        </header>
+                        <ul className="mt-2 space-y-1 text-sm text-red-900/85 dark:text-red-200/85">
+                            {importErrors.map((error) => (
+                                <li key={`${error.row}-${error.reg_number}`}>
+                                    <span className="font-medium">
+                                        Row {error.row}
+                                    </span>
+                                    {error.reg_number
+                                        ? ` (${error.reg_number})`
+                                        : ''}
+                                    : {error.message}
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                ) : null}
+
+                <DataTable
+                    title={`Roster (${students.length} students)`}
+                    columns={studentColumns}
+                    rows={students}
+                    searchKeys={['name', 'reg_number']}
+                    rowKey={(row) => row.id}
+                    pageSize={10}
+                    emptyMessage="No students on the roster yet."
+                />
+
                 <DataTable
                     title={`Users (page ${users.current_page} of ${users.last_page})`}
                     columns={columns}

@@ -1,9 +1,9 @@
 {
-    "name": "laravel-dev",
+    "name": "unn",
     "version": "1.0.0",
     "description": "An awesome app built with NativePHP",
     "main": "./out/main/index.js",
-    "author": null,
+    "author": "Department of Computer Science, University of Nigeria, Nsukka",
     "homepage": "https://nativephp.com",
     "type": "module",
     "engines": {

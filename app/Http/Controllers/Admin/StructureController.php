@@ -112,6 +112,22 @@ class StructureController extends Controller
                 UserRole::cases(),
             ),
             'departments' => Department::query()->orderBy('dept_name')->get(['id', 'dept_name']),
+
+            // The roster is returned whole rather than paginated: a second
+            // paginator on this page would fight the users one over ?page=,
+            // and DataTable already pages it in the browser.
+            'students' => Student::query()
+                ->with('department')
+                ->orderBy('reg_number')
+                ->get()
+                ->map(fn (Student $student) => [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'reg_number' => $student->reg_number,
+                    'department' => $student->department->dept_name,
+                    'entry_year' => $student->entry_year,
+                    'claimed' => $student->isClaimed(),
+                ]),
         ]);
     }
 
@@ -130,25 +146,5 @@ class StructureController extends Controller
         $user->update(['role' => $validated['role']]);
 
         return back()->with('success', "{$user->name} is now a ".UserRole::from($validated['role'])->label().'.');
-    }
-
-    /**
-     * Attach a student record to a user account.
-     */
-    public function storeStudent(Request $request): RedirectResponse
-    {
-        $this->authorize('manage', Course::class);
-
-        $validated = $request->validate([
-            'user_id' => ['required', 'integer', 'exists:users,id', 'unique:students,user_id'],
-            'reg_number' => ['required', 'string', 'max:20', 'unique:students,reg_number'],
-            'dept_id' => ['required', 'integer', 'exists:departments,id'],
-            'entry_year' => ['required', 'integer', 'min:1960', 'max:'.(date('Y') + 1)],
-        ]);
-
-        Student::query()->create($validated);
-        User::query()->whereKey($validated['user_id'])->update(['role' => UserRole::Student]);
-
-        return back()->with('success', 'Student record created.');
     }
 }

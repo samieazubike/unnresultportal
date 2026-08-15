@@ -3,6 +3,10 @@
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\StructureController;
+use App\Http\Controllers\Admin\StudentRosterController;
+use App\Http\Controllers\Auth\AccountClaimCodeController;
+use App\Http\Controllers\Auth\AccountClaimController;
+use App\Http\Controllers\Auth\AccountClaimPasswordController;
 use App\Http\Controllers\CourseRegistrationController;
 use App\Http\Controllers\Dashboard\DepartmentDashboardController;
 use App\Http\Controllers\Dashboard\LecturerDashboardController;
@@ -43,6 +47,36 @@ Route::inertia('/', 'welcome')->name('home');
 */
 Route::get('desktop/offline', [DesktopShellController::class, 'offline'])->name('desktop.offline');
 Route::get('desktop/retry', [DesktopShellController::class, 'retry'])->name('desktop.retry');
+
+/*
+| Registration — claiming a pre-provisioned student account
+|
+| Fortify's open registration is deliberately switched off (config/fortify.php).
+| A student does not describe themselves to this portal: an administrator has
+| already put them on the roster, and registration is the act of proving you
+| are that row and attaching an email and password to it. Every other role is
+| provisioned by an administrator and never self-registers.
+|
+| The three steps carry only the claim's id in the session, so each URL can be
+| refreshed or revisited and resolves its own state.
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('register', [AccountClaimController::class, 'create'])->name('register');
+    Route::post('register', [AccountClaimController::class, 'store'])
+        ->middleware('throttle:claim-lookup')
+        ->name('register.store');
+
+    Route::get('register/verify', [AccountClaimCodeController::class, 'show'])->name('register.verify');
+    Route::post('register/verify', [AccountClaimCodeController::class, 'store'])
+        ->middleware('throttle:claim-code')
+        ->name('register.verify.store');
+    Route::post('register/verify/resend', [AccountClaimCodeController::class, 'resend'])
+        ->middleware('throttle:claim-resend')
+        ->name('register.verify.resend');
+
+    Route::get('register/password', [AccountClaimPasswordController::class, 'show'])->name('register.password');
+    Route::post('register/password', [AccountClaimPasswordController::class, 'store'])->name('register.password.store');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -133,7 +167,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('users', [StructureController::class, 'users'])->name('users');
         Route::put('users/{user}/role', [StructureController::class, 'updateUserRole'])->name('users.role');
-        Route::post('students', [StructureController::class, 'storeStudent'])->name('students.store');
+
+        // The student roster. Every student account in the portal begins as a
+        // row created here and is claimed later by the student themselves.
+        Route::post('students', [StudentRosterController::class, 'store'])->name('students.store');
+        Route::get('students/template', [StudentRosterController::class, 'template'])->name('students.template');
+        Route::post('students/import', [StudentRosterController::class, 'import'])->name('students.import');
 
         Route::get('courses', [CourseController::class, 'index'])->name('courses');
         Route::post('courses', [CourseController::class, 'store'])->name('courses.store');

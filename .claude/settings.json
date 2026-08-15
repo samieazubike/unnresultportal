@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(git --no-pager diff database/seeders/DatabaseSeeder.php)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import sys,json; d=sys.stdin.read\\(\\); i=d.find\\('{'\\); j=json.loads\\(d[i:]\\); print\\(json.dumps\\({'config':{k:v for k,v in j['config'].items\\(\\) if k in \\('style','base','registries'\\)},'links':j['links'],'preset':j['preset']},indent=2\\)\\)\")"
     ]
   }
 }

@@ -49,7 +49,7 @@ class StudentPortalController extends Controller
         return Inertia::render('student/results', [
             'student' => [
                 'id' => $student->getKey(),
-                'name' => $student->user->name,
+                'name' => $student->name,
                 'reg_number' => $student->reg_number,
                 'department' => $student->department->dept_name,
                 'faculty' => $student->department->faculty->faculty_name,
@@ -70,7 +70,7 @@ class StudentPortalController extends Controller
     private function resolveStudent(Request $request): Student
     {
         return Student::query()
-            ->with(['department.faculty', 'user'])
+            ->with(['department.faculty'])
             ->where('user_id', $request->user()->getKey())
             ->firstOrFail();
     }

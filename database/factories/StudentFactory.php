@@ -22,9 +22,20 @@ class StudentFactory extends Factory
 
         return [
             'user_id' => User::factory()->role(UserRole::Student),
+            'name' => fake()->name(),
             'reg_number' => sprintf('%d/%s', $entryYear, fake()->unique()->numerify('######')),
             'dept_id' => Department::factory(),
             'entry_year' => $entryYear,
         ];
+    }
+
+    /**
+     * A roster row an administrator has recorded but no one has claimed yet.
+     */
+    public function unclaimed(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'user_id' => null,
+        ]);
     }
 }
