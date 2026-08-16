@@ -46,9 +46,11 @@ export function AnnouncementBar({
             )}
         >
             <Info className="size-4 shrink-0" />
-            <span className="font-medium">{label}</span>
-            <span className="text-current/75 hidden sm:inline">&mdash;</span>
-            <span className="text-current/80 min-w-0 flex-1 truncate">
+            <span className="text-xs font-semibold tracking-widest uppercase">
+                {label}
+            </span>
+            <span className="hidden text-current/75 sm:inline">&mdash;</span>
+            <span className="min-w-0 flex-1 truncate text-current/80">
                 {message}
             </span>
 

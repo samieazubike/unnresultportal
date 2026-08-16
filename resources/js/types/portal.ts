@@ -1,11 +1,7 @@
 /** Shapes shared across the result portal pages. */
 
 export type UserRole =
-    | 'student'
-    | 'lecturer'
-    | 'exam_officer'
-    | 'ict_director'
-    | 'admin';
+    'student' | 'lecturer' | 'exam_officer' | 'ict_director' | 'admin';
 
 export type ResultStatus = 'draft' | 'submitted' | 'approved' | 'published';
 
@@ -125,4 +121,15 @@ export type ImportError = {
     row: number;
     reg_number: string;
     message: string;
+};
+
+/**
+ * A row read out of an uploaded spreadsheet. Staged into the score sheet's
+ * inputs as an unsaved edit — nothing is written until the lecturer saves.
+ */
+export type StagedScore = {
+    registration_id: number;
+    reg_number: string;
+    ca_score: number;
+    exam_score: number;
 };

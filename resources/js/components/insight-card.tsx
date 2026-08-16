@@ -46,11 +46,11 @@ export function InsightCard({
             <div aria-hidden className="absolute inset-0 bg-black/25" />
 
             <div className="relative">
-                <div className="mb-auto flex items-center gap-1.5 text-xs font-medium tracking-wide text-white/90">
+                <div className="mb-auto flex items-center gap-1.5 text-xs font-semibold tracking-widest text-white/90 uppercase">
                     <Sparkles className="size-3.5" />
                     Insights
                     {source ? (
-                        <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] uppercase tracking-wider">
+                        <span className="ml-1 bg-white/20 px-2 py-0.5 text-[10px] tracking-widest uppercase">
                             {source === 'llm' ? 'Model' : 'Offline'}
                         </span>
                     ) : null}

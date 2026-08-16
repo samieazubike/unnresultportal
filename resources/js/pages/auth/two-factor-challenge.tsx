@@ -102,7 +102,7 @@ export default function TwoFactorChallenge() {
 
                             <Button
                                 type="submit"
-                                className="h-12 w-full rounded-lg"
+                                className="w-full"
                                 disabled={processing}
                             >
                                 Continue

@@ -2,8 +2,8 @@ import { Deferred, Head, Link } from '@inertiajs/react';
 import { BookOpen, Clock, GraduationCap } from 'lucide-react';
 import { AnnouncementBar } from '@/components/announcement-bar';
 import { CgpaGauge } from '@/components/charts/cgpa-gauge';
-import { CgpaTrendChart  } from '@/components/charts/cgpa-trend-chart';
-import type {CgpaPoint} from '@/components/charts/cgpa-trend-chart';
+import { CgpaTrendChart } from '@/components/charts/cgpa-trend-chart';
+import type { CgpaPoint } from '@/components/charts/cgpa-trend-chart';
 import { InsightCard } from '@/components/insight-card';
 import { StatCard } from '@/components/stat-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -53,12 +53,15 @@ export default function StudentDashboard({
                     />
                 ) : null}
 
-                <div className="grid gap-4 lg:grid-cols-3">
+                <div className="grid gap-4 lg:grid-cols-2">
                     <StatCard
                         title="Your record"
                         icon={GraduationCap}
                         tiles={[
-                            { label: 'Registration number', value: student.reg_number },
+                            {
+                                label: 'Registration number',
+                                value: student.reg_number,
+                            },
                             { label: 'Entry year', value: student.entry_year },
                             {
                                 label: 'Semesters completed',
@@ -77,7 +80,13 @@ export default function StudentDashboard({
                         icon={BookOpen}
                         tiles={[
                             { label: 'Department', value: student.department },
-                            { label: 'Faculty', value: student.faculty.replace('Faculty of ', '') },
+                            {
+                                label: 'Faculty',
+                                value: student.faculty.replace(
+                                    'Faculty of ',
+                                    '',
+                                ),
+                            },
                             {
                                 label: 'Current CGPA',
                                 value: standing.cgpa.toFixed(2),
@@ -98,19 +107,28 @@ export default function StudentDashboard({
                             {
                                 label: 'Awaiting release',
                                 value: awaitingRelease.length,
-                                tone: awaitingRelease.length > 0 ? 'warning' : 'default',
+                                tone:
+                                    awaitingRelease.length > 0
+                                        ? 'warning'
+                                        : 'default',
                                 hint: 'Semesters not yet published',
                             },
                             {
                                 label: 'Courses pending',
-                                value: awaitingRelease.reduce((sum, s) => sum + s.courses, 0),
+                                value: awaitingRelease.reduce(
+                                    (sum, s) => sum + s.courses,
+                                    0,
+                                ),
                             },
                         ]}
                     />
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-3">
-                    <CgpaTrendChart data={cgpaTrend} className="lg:col-span-2" />
+                    <CgpaTrendChart
+                        data={cgpaTrend}
+                        className="lg:col-span-2"
+                    />
                     <CgpaGauge
                         cgpa={standing.cgpa}
                         classification={standing.classification}
@@ -127,7 +145,7 @@ export default function StudentDashboard({
                     <Deferred
                         data="recommendation"
                         fallback={
-                            <div className="flex min-h-52 flex-col justify-end gap-3 rounded-[var(--radius)] border border-border bg-card p-5 lg:col-span-2">
+                            <div className="flex min-h-52 flex-col justify-end gap-3 bg-card p-5 ring-1 ring-foreground/5 lg:col-span-2">
                                 <Skeleton className="h-3 w-20" />
                                 <Skeleton className="h-8 w-40" />
                                 <Skeleton className="h-3 w-full" />
@@ -141,8 +159,10 @@ export default function StudentDashboard({
                         />
                     </Deferred>
 
-                    <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
-                        <h2 className="text-sm font-semibold">Quick links</h2>
+                    <section className="bg-card p-4 shadow-sm ring-1 ring-foreground/5">
+                        <h2 className="text-xs font-semibold tracking-widest uppercase">
+                            Quick links
+                        </h2>
                         <div className="mt-3 flex flex-col gap-2">
                             <Link
                                 href="/student/results"

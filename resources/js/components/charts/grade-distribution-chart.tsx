@@ -51,7 +51,13 @@ export function GradeDistributionChart({
                     margin={{ top: 8, right: 8, left: -20, bottom: 0 }}
                 >
                     <defs>
-                        <linearGradient id="barFill" x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient
+                            id="barFill"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                        >
                             <stop offset="0%" stopColor="var(--chart-2)" />
                             <stop offset="100%" stopColor="var(--chart-1)" />
                         </linearGradient>

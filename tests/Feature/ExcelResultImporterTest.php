@@ -181,6 +181,27 @@ describe('row-level validation reports rather than skips', function () {
             ->toContain('Exam score is missing');
     });
 
+    it('reports a row whose result is already approved', function () {
+        Result::factory()->approved()->create([
+            'registration_id' => $this->students->first()->registrations()->sole()->id,
+        ]);
+
+        $path = makeSheet([
+            ['reg_number', 'ca_score', 'exam_score'],
+            ['2021/000101', 24, 46],
+            ['2021/000102', 18, 40],
+        ]);
+
+        $preview = $this->importer->preview($path, $this->course, '2025/2026', 1);
+
+        // The locked row is reported, never staged into an input the lecturer
+        // would not be allowed to save.
+        expect($preview['errors'])->toHaveCount(1)
+            ->and($preview['errors'][0]['message'])->toContain('locked')
+            ->and($preview['rows'])->toHaveCount(1)
+            ->and($preview['rows'][0]['reg_number'])->toBe('2021/000102');
+    });
+
     it('collects every problem in one pass rather than stopping at the first', function () {
         $path = makeSheet([
             ['reg_number', 'ca_score', 'exam_score'],

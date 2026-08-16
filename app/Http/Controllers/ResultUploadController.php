@@ -18,6 +18,13 @@ use Illuminate\Support\Facades\Storage;
  * rest: the spreadsheet reader needs a real file on disk, so encrypting it
  * only to decrypt it a line later would buy nothing. Keeping its lifetime to
  * a single request is the control that actually helps.
+ *
+ * The upload writes nothing. It parses the sheet and flashes the rows back so
+ * they land in the score sheet's inputs as unsaved edits, where the lecturer
+ * can correct them before saving. Rows that could not be read are flashed
+ * beside them, so a single bad row no longer costs the lecturer the whole
+ * sheet: the good rows are staged and the bad ones are typed in by hand. The
+ * one writer is still ResultEntryController@store.
  */
 class ResultUploadController extends Controller
 {
@@ -35,18 +42,16 @@ class ResultUploadController extends Controller
             'sheet' => ['required', 'file', 'mimes:xlsx,xls', 'max:5120'],
             'session' => ['required', 'string'],
             'semester' => ['required', 'integer', 'in:1,2'],
-            'confirm' => ['sometimes', 'boolean'],
         ]);
 
         $path = $request->file('sheet')->store(self::DIRECTORY, self::DISK);
 
         try {
-            $outcome = $this->importer->import(
+            $outcome = $this->importer->preview(
                 Storage::disk(self::DISK)->path($path),
                 $course,
                 $validated['session'],
                 (int) $validated['semester'],
-                $request->user(),
             );
         } catch (ImportFailed $exception) {
             return back()->with('error', $exception->getMessage());
@@ -54,14 +59,25 @@ class ResultUploadController extends Controller
             Storage::disk(self::DISK)->delete($path);
         }
 
+        $staged = array_map(fn (array $row) => [
+            'registration_id' => $row['registration_id'],
+            'reg_number' => $row['reg_number'],
+            'ca_score' => $row['ca_score'],
+            'exam_score' => $row['exam_score'],
+        ], $outcome['rows']);
+
         if ($outcome['errors'] !== []) {
-            // Nothing was saved. The lecturer sees the full row-by-row list
-            // before any part of the sheet lands (§10).
+            // The readable rows still reach the inputs; the lecturer sees the
+            // full row-by-row list for the rest (§10). Nothing is written
+            // either way, so a bad row no longer costs the whole sheet.
             return back()
-                ->with('error', count($outcome['errors']).' row(s) could not be imported. No scores were saved.')
-                ->with('importErrors', $outcome['errors']);
+                ->with('error', count($outcome['errors']).' row(s) could not be read. Nothing has been saved yet.')
+                ->with('importErrors', $outcome['errors'])
+                ->with('importRows', $staged);
         }
 
-        return back()->with('success', "Imported scores for {$outcome['imported']} student(s).");
+        return back()
+            ->with('success', 'Loaded scores for '.count($staged).' student(s). Review, then save.')
+            ->with('importRows', $staged);
     }
 }

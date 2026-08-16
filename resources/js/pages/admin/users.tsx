@@ -6,8 +6,19 @@ import type { Column } from '@/components/data-table';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    NativeSelect,
+    NativeSelectOption,
+} from '@/components/ui/native-select';
 import {
     importMethod as importRoster,
     store,
@@ -108,7 +119,9 @@ export default function AdminUsers({
             header: 'Role',
             align: 'right',
             cell: (row) => (
-                <select
+                <NativeSelect
+                    size="sm"
+                    className="ml-auto"
                     value={row.role}
                     onChange={(event) =>
                         router.put(
@@ -117,15 +130,14 @@ export default function AdminUsers({
                             { preserveScroll: true },
                         )
                     }
-                    className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
                     aria-label={`Role for ${row.name}`}
                 >
                     {roles.map((role) => (
-                        <option key={role.value} value={role.value}>
+                        <NativeSelectOption key={role.value} value={role.value}>
                             {role.label}
-                        </option>
+                        </NativeSelectOption>
                     ))}
-                </select>
+                </NativeSelect>
             ),
         },
     ];
@@ -159,15 +171,19 @@ export default function AdminUsers({
             <Head title="Users" />
 
             <div className="flex flex-col gap-4 p-4">
-                <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
-                    <h2 className="text-sm font-semibold">Student roster</h2>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                        Students are recorded here first and claim their own
-                        account afterwards with their registration number. No
-                        password is set on their behalf.
-                    </p>
+                <Card size="sm">
+                    <CardHeader>
+                        <CardTitle className="text-sm">
+                            Student roster
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Students are recorded here first and claim their own
+                            account afterwards with their registration number.
+                            No password is set on their behalf.
+                        </CardDescription>
+                    </CardHeader>
 
-                    <div className="mt-3 grid gap-4 lg:grid-cols-2">
+                    <CardContent className="grid gap-4 lg:grid-cols-2">
                         <form
                             onSubmit={(event) => {
                                 event.preventDefault();
@@ -221,7 +237,8 @@ export default function AdminUsers({
                                     <Label htmlFor="roster_dept_id">
                                         Department
                                     </Label>
-                                    <select
+                                    <NativeSelect
+                                        className="w-full"
                                         id="roster_dept_id"
                                         value={rosterForm.data.dept_id}
                                         onChange={(e) =>
@@ -230,17 +247,16 @@ export default function AdminUsers({
                                                 Number(e.target.value),
                                             )
                                         }
-                                        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
                                     >
                                         {departments.map((department) => (
-                                            <option
+                                            <NativeSelectOption
                                                 key={department.id}
                                                 value={department.id}
                                             >
                                                 {department.dept_name}
-                                            </option>
+                                            </NativeSelectOption>
                                         ))}
-                                    </select>
+                                    </NativeSelect>
                                     <InputError
                                         message={rosterForm.errors.dept_id}
                                     />
@@ -274,7 +290,7 @@ export default function AdminUsers({
                                     type="submit"
                                     disabled={rosterForm.processing}
                                 >
-                                    <Plus className="size-4" />
+                                    <Plus data-icon="inline-start" />
                                     Add student
                                 </Button>
                             </div>
@@ -292,7 +308,8 @@ export default function AdminUsers({
                                     <Label htmlFor="import_dept_id">
                                         Department for this sheet
                                     </Label>
-                                    <select
+                                    <NativeSelect
+                                        className="w-full"
                                         id="import_dept_id"
                                         value={importDept}
                                         onChange={(e) =>
@@ -300,17 +317,16 @@ export default function AdminUsers({
                                                 Number(e.target.value),
                                             )
                                         }
-                                        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
                                     >
                                         {departments.map((department) => (
-                                            <option
+                                            <NativeSelectOption
                                                 key={department.id}
                                                 value={department.id}
                                             >
                                                 {department.dept_name}
-                                            </option>
+                                            </NativeSelectOption>
                                         ))}
-                                    </select>
+                                    </NativeSelect>
                                 </div>
 
                                 <div>
@@ -335,7 +351,7 @@ export default function AdminUsers({
                             <div className="flex flex-wrap gap-2">
                                 <Button asChild variant="outline" size="sm">
                                     <a href={template.url()}>
-                                        <Download className="size-4" />
+                                        <Download data-icon="inline-start" />
                                         Template
                                     </a>
                                 </Button>
@@ -359,19 +375,19 @@ export default function AdminUsers({
                                     size="sm"
                                     onClick={() => fileInput.current?.click()}
                                 >
-                                    <Upload className="size-4" />
+                                    <Upload data-icon="inline-start" />
                                     Upload roster
                                 </Button>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </CardContent>
+                </Card>
 
                 {importErrors.length > 0 ? (
-                    <section className="rounded-[var(--radius)] border border-red-500/25 bg-red-50 p-4 dark:bg-red-500/10">
+                    <section className="border border-red-500/25 bg-red-50 p-4 dark:bg-red-500/10">
                         <header className="flex items-center gap-2">
                             <AlertTriangle className="size-4 text-red-700 dark:text-red-300" />
-                            <h2 className="text-sm font-semibold text-red-900 dark:text-red-200">
+                            <h2 className="text-xs font-semibold tracking-widest text-red-900 uppercase dark:text-red-200">
                                 {importErrors.length} row
                                 {importErrors.length === 1 ? '' : 's'} could not
                                 be imported — nothing was saved

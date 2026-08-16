@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-/* @import 'tw-animate-css'; */
-
 @import 'tw-animate-css';
 
 @import 'shadcn/tailwind.css';
@@ -121,7 +119,13 @@
     --chart-3: oklch(0.78 0.15 78);
     --chart-4: oklch(0.6 0.17 258);
     --chart-5: oklch(0.6 0.2 300);
-    --radius: 0.625rem;
+
+    /*
+     * Sera is square. Its primitives hard-code `rounded-none`, so this governs
+     * only hand-rolled markup — and squaring it is what keeps the two halves
+     * of the app looking like one thing.
+     */
+    --radius: 0rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.455 0.112 155);

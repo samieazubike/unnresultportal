@@ -85,7 +85,10 @@ export function CgpaGauge({
                             >
                                 <stop offset="0%" stopColor="var(--chart-5)" />
                                 <stop offset="60%" stopColor="var(--chart-1)" />
-                                <stop offset="100%" stopColor="var(--chart-2)" />
+                                <stop
+                                    offset="100%"
+                                    stopColor="var(--chart-2)"
+                                />
                             </linearGradient>
                         </defs>
                     </svg>

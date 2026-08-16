@@ -1,8 +1,8 @@
 import { Head } from '@inertiajs/react';
 import { GraduationCap, Users } from 'lucide-react';
 import { PerformanceComparisonChart } from '@/components/charts/performance-comparison-chart';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { StatCard } from '@/components/stat-card';
 import type {
@@ -33,7 +33,9 @@ export default function AdminDashboard({
         {
             key: 'course_code',
             header: 'Course',
-            cell: (row) => <span className="font-medium">{row.course_code}</span>,
+            cell: (row) => (
+                <span className="font-medium">{row.course_code}</span>
+            ),
         },
         { key: 'session', header: 'Session' },
         { key: 'enrolled', header: 'Enrolled', align: 'center' },
@@ -42,7 +44,9 @@ export default function AdminDashboard({
             header: 'Failure rate',
             align: 'right',
             cell: (row) => (
-                <span className="tabular-nums">{row.failure_rate.toFixed(1)}%</span>
+                <span className="tabular-nums">
+                    {row.failure_rate.toFixed(1)}%
+                </span>
             ),
         },
         {
@@ -65,7 +69,10 @@ export default function AdminDashboard({
                         title="Institution"
                         icon={GraduationCap}
                         tiles={[
-                            { label: 'Students', value: summary.students.toLocaleString() },
+                            {
+                                label: 'Students',
+                                value: summary.students.toLocaleString(),
+                            },
                             { label: 'Courses', value: summary.courses },
                             {
                                 label: 'Published results',
@@ -75,7 +82,10 @@ export default function AdminDashboard({
                             {
                                 label: `Flagged above ${failureThreshold}%`,
                                 value: summary.flagged_courses,
-                                tone: summary.flagged_courses > 0 ? 'destructive' : 'default',
+                                tone:
+                                    summary.flagged_courses > 0
+                                        ? 'destructive'
+                                        : 'default',
                             },
                         ]}
                     />

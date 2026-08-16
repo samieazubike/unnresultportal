@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { ShieldCheck } from 'lucide-react';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
 import { GradeBadge, StatusBadge } from '@/components/result-badges';
 
 type TamperedResult = {
@@ -77,7 +77,7 @@ export default function Integrity({
 
             <div className="flex flex-col gap-4 p-4">
                 {results.length === 0 ? (
-                    <section className="flex flex-col items-center gap-2 rounded-[var(--radius)] border border-border bg-card p-12 text-center shadow-xs">
+                    <section className="flex flex-col items-center gap-2 bg-card p-12 text-center shadow-sm ring-1 ring-foreground/5">
                         <ShieldCheck className="size-7 text-[color:var(--success)]" />
                         <p className="text-sm font-medium">
                             All {checked} signed results verify
@@ -94,7 +94,11 @@ export default function Integrity({
                             title={`${results.length} result(s) failed verification`}
                             columns={columns}
                             rows={results}
-                            searchKeys={['course_code', 'reg_number', 'student_name']}
+                            searchKeys={[
+                                'course_code',
+                                'reg_number',
+                                'student_name',
+                            ]}
                             rowKey={(row) => row.id}
                         />
 
@@ -102,8 +106,8 @@ export default function Integrity({
                             These records were changed by something other than
                             this application. They are excluded from
                             publication, from transcripts and from every chart
-                            until the discrepancy is resolved. Checked{' '}
-                            {checked} signed results.
+                            until the discrepancy is resolved. Checked {checked}{' '}
+                            signed results.
                         </p>
                     </>
                 )}

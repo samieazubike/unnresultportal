@@ -1,10 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import { BookOpen, ClipboardList } from 'lucide-react';
 import { AnnouncementBar } from '@/components/announcement-bar';
-import { GradeDistributionChart  } from '@/components/charts/grade-distribution-chart';
-import type {GradeCount} from '@/components/charts/grade-distribution-chart';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { GradeDistributionChart } from '@/components/charts/grade-distribution-chart';
+import type { GradeCount } from '@/components/charts/grade-distribution-chart';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { StatCard } from '@/components/stat-card';
 import type { FailureRate } from '@/types/portal';
@@ -29,7 +29,11 @@ type Props = {
     };
     leading: CourseCard[];
     coTeaching: CourseCard[];
-    selectedCourse: { id: number; course_code: string; course_title: string } | null;
+    selectedCourse: {
+        id: number;
+        course_code: string;
+        course_title: string;
+    } | null;
     gradeDistribution: GradeCount[];
     failureRates: FailureRate[];
     session: string;
@@ -50,7 +54,9 @@ export default function LecturerDashboard({
         {
             key: 'course_code',
             header: 'Course',
-            cell: (row) => <span className="font-medium">{row.course_code}</span>,
+            cell: (row) => (
+                <span className="font-medium">{row.course_code}</span>
+            ),
         },
         { key: 'session', header: 'Session' },
         { key: 'enrolled', header: 'Enrolled', align: 'center' },
@@ -60,7 +66,9 @@ export default function LecturerDashboard({
             header: 'Failure rate',
             align: 'right',
             cell: (row) => (
-                <span className="tabular-nums">{row.failure_rate.toFixed(1)}%</span>
+                <span className="tabular-nums">
+                    {row.failure_rate.toFixed(1)}%
+                </span>
             ),
         },
         {
@@ -110,9 +118,15 @@ export default function LecturerDashboard({
                             {
                                 label: 'Awaiting review',
                                 value: summary.submitted,
-                                tone: summary.submitted > 0 ? 'warning' : 'default',
+                                tone:
+                                    summary.submitted > 0
+                                        ? 'warning'
+                                        : 'default',
                             },
-                            { label: 'Awaiting release', value: summary.approved },
+                            {
+                                label: 'Awaiting release',
+                                value: summary.approved,
+                            },
                             {
                                 label: 'Published',
                                 value: summary.published,
@@ -137,8 +151,10 @@ export default function LecturerDashboard({
                         }
                     />
 
-                    <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
-                        <h2 className="text-sm font-semibold">Courses you lead</h2>
+                    <section className="bg-card p-4 shadow-sm ring-1 ring-foreground/5">
+                        <h2 className="text-xs font-semibold tracking-widest uppercase">
+                            Courses you lead
+                        </h2>
                         <p className="mt-0.5 text-xs text-muted-foreground">
                             Only the course head may submit a sheet for review.
                         </p>
@@ -150,7 +166,10 @@ export default function LecturerDashboard({
                                 </p>
                             ) : (
                                 leading.map((course) => (
-                                    <CourseRow key={course.id} course={course} />
+                                    <CourseRow
+                                        key={course.id}
+                                        course={course}
+                                    />
                                 ))
                             )}
                         </div>
@@ -162,7 +181,10 @@ export default function LecturerDashboard({
                                 </h3>
                                 <div className="mt-2 flex flex-col gap-2">
                                     {coTeaching.map((course) => (
-                                        <CourseRow key={course.id} course={course} />
+                                        <CourseRow
+                                            key={course.id}
+                                            course={course}
+                                        />
                                     ))}
                                 </div>
                             </>

@@ -65,9 +65,11 @@ export default function Registration({
             <Head title="Course registration" />
 
             <div className="flex flex-col gap-4 p-4">
-                <section className="flex flex-wrap items-center gap-4 rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
+                <section className="flex flex-wrap items-center gap-4 bg-card p-4 shadow-sm ring-1 ring-foreground/5">
                     <div>
-                        <p className="text-sm font-semibold">{student.reg_number}</p>
+                        <p className="text-xs font-semibold tracking-widest uppercase">
+                            {student.reg_number}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                             {student.department}
                         </p>
@@ -77,15 +79,19 @@ export default function Registration({
                             {session} · Semester {semester}
                         </span>
                         <span>
-                            <strong className="tabular-nums">{totalCreditUnits}</strong>{' '}
+                            <strong className="tabular-nums">
+                                {totalCreditUnits}
+                            </strong>{' '}
                             credit units registered
                         </span>
                     </div>
                 </section>
 
-                <section className="overflow-hidden rounded-[var(--radius)] border border-border bg-card shadow-xs">
+                <section className="overflow-hidden bg-card shadow-sm ring-1 ring-foreground/5">
                     <header className="border-b border-border p-4">
-                        <h2 className="text-sm font-semibold">Registered courses</h2>
+                        <h2 className="text-xs font-semibold tracking-widest uppercase">
+                            Registered courses
+                        </h2>
                     </header>
 
                     <Table>
@@ -93,7 +99,9 @@ export default function Registration({
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="text-xs">Code</TableHead>
                                 <TableHead className="text-xs">Title</TableHead>
-                                <TableHead className="text-center text-xs">Units</TableHead>
+                                <TableHead className="text-center text-xs">
+                                    Units
+                                </TableHead>
                                 <TableHead className="text-right text-xs" />
                             </TableRow>
                         </TableHeader>
@@ -104,8 +112,8 @@ export default function Registration({
                                         colSpan={4}
                                         className="h-24 text-center text-sm text-muted-foreground"
                                     >
-                                        You have not registered any course for this
-                                        semester.
+                                        You have not registered any course for
+                                        this semester.
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -132,7 +140,9 @@ export default function Registration({
                                                     onClick={() =>
                                                         router.delete(
                                                             `/student/registration/${course.id}`,
-                                                            { preserveScroll: true },
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
                                                         )
                                                     }
                                                 >
@@ -148,9 +158,11 @@ export default function Registration({
                     </Table>
                 </section>
 
-                <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
+                <section className="bg-card p-4 shadow-sm ring-1 ring-foreground/5">
                     <header className="flex items-center gap-3">
-                        <h2 className="text-sm font-semibold">Available courses</h2>
+                        <h2 className="text-xs font-semibold tracking-widest uppercase">
+                            Available courses
+                        </h2>
                         <Button
                             size="sm"
                             className="ml-auto"
@@ -158,14 +170,15 @@ export default function Registration({
                             onClick={register}
                         >
                             <Plus className="size-4" />
-                            Register {selected.length > 0 ? `(${selected.length})` : ''}
+                            Register{' '}
+                            {selected.length > 0 ? `(${selected.length})` : ''}
                         </Button>
                     </header>
 
                     {available.length === 0 ? (
                         <p className="mt-4 rounded-lg bg-muted/50 px-3 py-8 text-center text-sm text-muted-foreground">
-                            Every course in your department is already registered
-                            for this semester.
+                            Every course in your department is already
+                            registered for this semester.
                         </p>
                     ) : (
                         <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
@@ -177,7 +190,9 @@ export default function Registration({
                                     <Checkbox
                                         id={`course-${course.id}`}
                                         checked={selected.includes(course.id)}
-                                        onCheckedChange={() => toggle(course.id)}
+                                        onCheckedChange={() =>
+                                            toggle(course.id)
+                                        }
                                     />
                                     <Label
                                         htmlFor={`course-${course.id}`}
@@ -204,5 +219,7 @@ export default function Registration({
 }
 
 Registration.layout = () => ({
-    breadcrumbs: [{ title: 'Course registration', href: '/student/registration' }],
+    breadcrumbs: [
+        { title: 'Course registration', href: '/student/registration' },
+    ],
 });

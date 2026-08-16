@@ -460,7 +460,7 @@ it('exposes no API routes at all', function () {
 });
 
 describe('Excel upload over HTTP', function () {
-    it('surfaces every bad row and saves nothing', function () {
+    it('surfaces every bad row, stages the good one and saves nothing', function () {
         $students = collect(['2021/000101', '2021/000102', '2021/000103'])
             ->map(fn (string $reg) => Student::factory()->create(['reg_number' => $reg]));
 
@@ -493,15 +493,19 @@ describe('Excel upload over HTTP', function () {
                 'semester' => 1,
             ])
             ->assertSessionHas('error')
-            ->assertSessionHas('importErrors', fn (array $errors) => count($errors) === 4);
+            ->assertSessionHas('importErrors', fn (array $errors) => count($errors) === 4)
+            // The one readable row still reaches the lecturer's inputs; the
+            // four others are typed in by hand.
+            ->assertSessionHas('importRows', fn (array $staged) => count($staged) === 1
+                && $staged[0]['reg_number'] === '2021/000101');
 
-        // Not one row landed, including the valid one.
+        // The upload writes nothing at all — not even the readable row.
         expect(Result::count())->toBe(0);
     });
 
-    it('imports a clean sheet', function () {
+    it('stages a clean sheet into the inputs and saves only when the lecturer does', function () {
         $student = Student::factory()->create(['reg_number' => '2021/000201']);
-        Registration::factory()->create([
+        $registration = Registration::factory()->create([
             'student_id' => $student->id,
             'course_id' => $this->course->id,
             'session' => '2025/2026',
@@ -523,9 +527,54 @@ describe('Excel upload over HTTP', function () {
                 'session' => '2025/2026',
                 'semester' => 1,
             ])
+            ->assertSessionHas('success')
+            ->assertSessionHas('importRows', fn (array $rows) => count($rows) === 1
+                && $rows[0]['registration_id'] === $registration->id
+                && $rows[0]['reg_number'] === '2021/000201');
+
+        $staged = session('importRows');
+
+        expect($staged[0]['ca_score'])->toEqual(24)
+            ->and($staged[0]['exam_score'])->toEqual(46)
+            // The upload parses; it does not write.
+            ->and(Result::count())->toBe(0);
+
+        // The staged rows go back through the one writer, which is where the
+        // grade is computed.
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores", [
+                'scores' => [[
+                    'registration_id' => $staged[0]['registration_id'],
+                    'ca_score' => $staged[0]['ca_score'],
+                    'exam_score' => $staged[0]['exam_score'],
+                ]],
+            ])
             ->assertSessionHas('success');
 
         expect(Result::query()->where('grade', 'A')->count())->toBe(1);
+    });
+
+    it('leaves an approved row out of the staged rows', function () {
+        Result::factory()->approved()->create(['registration_id' => $this->registration->id]);
+
+        $spreadsheet = new Spreadsheet;
+        $spreadsheet->getActiveSheet()->fromArray([
+            ['reg_number', 'ca_score', 'exam_score'],
+            [$this->student->reg_number, 24, 46],
+        ], null, 'A1');
+
+        $path = tempnam(sys_get_temp_dir(), 'upload').'.xlsx';
+        (new Xlsx($spreadsheet))->save($path);
+
+        $this->actingAs($this->head)
+            ->post("/lecturer/courses/{$this->course->id}/scores/upload", [
+                'sheet' => new UploadedFile($path, 'scores.xlsx', null, null, true),
+                'session' => '2025/2026',
+                'semester' => 1,
+            ])
+            ->assertSessionHas('importErrors', fn (array $errors) => count($errors) === 1
+                && str_contains($errors[0]['message'], 'locked'))
+            ->assertSessionHas('importRows', fn (array $rows) => $rows === []);
     });
 
     it('downloads the pre-filled template', function () {

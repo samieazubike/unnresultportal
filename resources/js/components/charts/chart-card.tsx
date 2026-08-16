@@ -1,5 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
 import { MoreHorizontal } from 'lucide-react';
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 /**
@@ -27,38 +34,33 @@ export function ChartCard({
     bodyClassName?: string;
 }) {
     return (
-        <section
-            className={cn(
-                'flex flex-col rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs',
-                className,
-            )}
-        >
-            <header className="mb-4 flex items-center gap-2">
+        <Card size="sm" className={cn('gap-4', className)}>
+            <CardHeader className="flex flex-row items-center gap-2 space-y-0">
                 {Icon ? (
-                    <span className="flex size-6 items-center justify-center rounded-md bg-accent text-accent-foreground">
+                    <span className="flex size-6 items-center justify-center bg-accent text-accent-foreground">
                         <Icon className="size-3.5" />
                     </span>
                 ) : null}
-                <h2 className="text-sm font-semibold">{title}</h2>
-                <div className="ml-auto flex items-center gap-2">
+                <CardTitle className="text-sm">{title}</CardTitle>
+                <CardAction>
                     {action ?? (
                         <MoreHorizontal
                             className="size-4 text-muted-foreground"
                             aria-hidden
                         />
                     )}
-                </div>
-            </header>
+                </CardAction>
+            </CardHeader>
 
-            <div className={cn('flex-1', bodyClassName)}>
+            <CardContent className={cn('flex-1', bodyClassName)}>
                 {isEmpty ? (
-                    <div className="flex h-full min-h-44 items-center justify-center rounded-lg bg-muted/50 px-6 text-center text-sm text-muted-foreground">
+                    <div className="flex h-full min-h-44 items-center justify-center bg-muted/50 px-6 text-center text-sm text-muted-foreground">
                         {emptyMessage}
                     </div>
                 ) : (
                     children
                 )}
-            </div>
-        </section>
+            </CardContent>
+        </Card>
     );
 }

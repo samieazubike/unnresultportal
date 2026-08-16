@@ -63,7 +63,9 @@ export default function Login({ status, canResetPassword }: Props) {
                                         name="remember"
                                         tabIndex={3}
                                     />
-                                    <Label htmlFor="remember">Remember me</Label>
+                                    <Label htmlFor="remember">
+                                        Remember me
+                                    </Label>
                                 </div>
 
                                 {canResetPassword && (
@@ -80,7 +82,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
                         <Button
                             type="submit"
-                            className="h-12 w-full rounded-lg"
+                            className="w-full"
                             tabIndex={5}
                             disabled={processing}
                             data-test="login-button"

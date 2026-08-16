@@ -1,5 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
 import { MoreHorizontal } from 'lucide-react';
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export type StatTile = {
@@ -18,9 +25,10 @@ const toneClasses: Record<NonNullable<StatTile['tone']>, string> = {
 };
 
 /**
- * A titled card wrapping a grid of muted stat tiles — the "Students Overview"
- * pattern from the design: small icon and title in the header, then a 2x2
- * block of label-plus-large-number tiles.
+ * A titled card wrapping a grid of muted stat tiles.
+ *
+ * `size="sm"` because a tile grid at the default 32px card spacing reads as
+ * empty room rather than density.
  */
 export function StatCard({
     title,
@@ -38,41 +46,33 @@ export function StatCard({
     action?: React.ReactNode;
 }) {
     return (
-        <section
-            className={cn(
-                'flex flex-col rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs',
-                className,
-            )}
-        >
-            <header className="mb-3 flex items-center gap-2">
+        <Card size="sm" className={cn('gap-4', className)}>
+            <CardHeader className="flex flex-row items-center gap-2 space-y-0">
                 {Icon ? (
-                    <span className="flex size-6 items-center justify-center rounded-md bg-accent text-accent-foreground">
+                    <span className="flex size-6 items-center justify-center bg-accent text-accent-foreground">
                         <Icon className="size-3.5" />
                     </span>
                 ) : null}
-                <h2 className="text-sm font-semibold">{title}</h2>
-                <div className="ml-auto flex items-center gap-1">
+                <CardTitle className="text-sm">{title}</CardTitle>
+                <CardAction>
                     {action ?? (
                         <MoreHorizontal
                             className="size-4 text-muted-foreground"
                             aria-hidden
                         />
                     )}
-                </div>
-            </header>
+                </CardAction>
+            </CardHeader>
 
-            <div
+            <CardContent
                 className={cn(
                     'grid flex-1 gap-2',
                     columns === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2',
                 )}
             >
                 {tiles.map((tile) => (
-                    <div
-                        key={tile.label}
-                        className="rounded-lg bg-muted/70 px-3 py-2.5"
-                    >
-                        <p className="text-xs text-muted-foreground">
+                    <div key={tile.label} className="bg-muted/70 px-3 py-2.5">
+                        <p className="text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">
                             {tile.label}
                         </p>
                         <p
@@ -90,7 +90,7 @@ export function StatCard({
                         ) : null}
                     </div>
                 ))}
-            </div>
-        </section>
+            </CardContent>
+        </Card>
     );
 }

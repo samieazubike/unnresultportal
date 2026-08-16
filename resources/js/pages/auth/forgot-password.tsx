@@ -33,7 +33,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                             />
 
                             <Button
-                                className="h-12 w-full rounded-lg"
+                                className="w-full"
                                 disabled={processing}
                                 data-test="email-password-reset-link-button"
                             >

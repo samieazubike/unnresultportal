@@ -81,7 +81,7 @@ export default function RegisterVerify({
 
                             <Button
                                 type="submit"
-                                className="h-12 w-full rounded-lg"
+                                className="w-full"
                                 disabled={processing}
                                 data-test="verify-code-button"
                             >

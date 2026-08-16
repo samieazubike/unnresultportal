@@ -1,5 +1,6 @@
 import { ChevronsUpDown, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
     Table,
@@ -55,7 +56,9 @@ export function DataTable<T extends Record<string, unknown>>({
     className?: string;
 }) {
     const [query, setQuery] = useState('');
-    const [sort, setSort] = useState<{ key: string; desc: boolean } | null>(null);
+    const [sort, setSort] = useState<{ key: string; desc: boolean } | null>(
+        null,
+    );
     const [page, setPage] = useState(1);
 
     const filtered = useMemo(() => {
@@ -109,22 +112,17 @@ export function DataTable<T extends Record<string, unknown>>({
         );
 
     return (
-        <section
-            className={cn(
-                'flex flex-col overflow-hidden rounded-[var(--radius)] border border-border bg-card shadow-xs',
-                className,
-            )}
-        >
+        <Card size="sm" className={cn('gap-0', className)}>
             {(title || action || searchKeys?.length) && (
-                <header className="flex flex-wrap items-center gap-3 border-b border-border p-4">
+                <CardHeader className="flex flex-row flex-wrap items-center gap-3 space-y-0 border-b pb-(--card-spacing)">
                     {title ? (
-                        <h2 className="text-sm font-semibold">{title}</h2>
+                        <CardTitle className="text-sm">{title}</CardTitle>
                     ) : null}
 
                     <div className="ml-auto flex items-center gap-2">
                         {searchKeys?.length ? (
                             <div className="relative">
-                                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                                <Search className="pointer-events-none absolute top-1/2 left-0 size-3.5 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     value={query}
                                     onChange={(event) => {
@@ -132,14 +130,14 @@ export function DataTable<T extends Record<string, unknown>>({
                                         setPage(1);
                                     }}
                                     placeholder="Search"
-                                    className="h-8 w-44 pl-8 text-sm"
+                                    className="h-9 w-44 pl-6 text-sm"
                                     aria-label={`Search ${title ?? 'table'}`}
                                 />
                             </div>
                         ) : null}
                         {action}
                     </div>
-                </header>
+                </CardHeader>
             )}
 
             <div className="overflow-x-auto">
@@ -150,16 +148,21 @@ export function DataTable<T extends Record<string, unknown>>({
                                 <TableHead
                                     key={column.key}
                                     className={cn(
-                                        'whitespace-nowrap text-xs font-medium text-muted-foreground',
-                                        column.align === 'right' && 'text-right',
-                                        column.align === 'center' && 'text-center',
+                                        'text-xs font-semibold tracking-widest whitespace-nowrap text-muted-foreground uppercase',
+                                        column.align === 'right' &&
+                                            'text-right',
+                                        column.align === 'center' &&
+                                            'text-center',
                                         column.className,
                                     )}
                                 >
-                                    {column.sortValue || column.key in (rows[0] ?? {}) ? (
+                                    {column.sortValue ||
+                                    column.key in (rows[0] ?? {}) ? (
                                         <button
                                             type="button"
-                                            onClick={() => toggleSort(column.key)}
+                                            onClick={() =>
+                                                toggleSort(column.key)
+                                            }
                                             className="inline-flex items-center gap-1 hover:text-foreground"
                                         >
                                             {column.header}
@@ -194,8 +197,10 @@ export function DataTable<T extends Record<string, unknown>>({
                                             key={column.key}
                                             className={cn(
                                                 'text-sm',
-                                                column.align === 'right' && 'text-right',
-                                                column.align === 'center' && 'text-center',
+                                                column.align === 'right' &&
+                                                    'text-right',
+                                                column.align === 'center' &&
+                                                    'text-center',
                                                 column.className,
                                             )}
                                         >
@@ -212,7 +217,7 @@ export function DataTable<T extends Record<string, unknown>>({
             </div>
 
             {sorted.length > 0 ? (
-                <footer className="flex flex-wrap items-center gap-3 border-t border-border px-4 py-3">
+                <CardFooter className="flex-wrap gap-3 border-t pt-(--card-spacing)">
                     <p className="text-xs text-muted-foreground">
                         Showing {start + 1} to{' '}
                         {Math.min(start + pageSize, sorted.length)} of{' '}
@@ -220,7 +225,10 @@ export function DataTable<T extends Record<string, unknown>>({
                     </p>
 
                     {pageCount > 1 ? (
-                        <nav className="ml-auto flex items-center gap-1" aria-label="Pagination">
+                        <nav
+                            className="ml-auto flex items-center gap-1"
+                            aria-label="Pagination"
+                        >
                             <PageButton
                                 disabled={current === 1}
                                 onClick={() => setPage(current - 1)}
@@ -228,23 +236,24 @@ export function DataTable<T extends Record<string, unknown>>({
                                 ‹
                             </PageButton>
 
-                            {pageNumbers(current, pageCount).map((entry, index) =>
-                                entry === null ? (
-                                    <span
-                                        key={`gap-${index}`}
-                                        className="px-1 text-xs text-muted-foreground"
-                                    >
-                                        …
-                                    </span>
-                                ) : (
-                                    <PageButton
-                                        key={entry}
-                                        active={entry === current}
-                                        onClick={() => setPage(entry)}
-                                    >
-                                        {entry}
-                                    </PageButton>
-                                ),
+                            {pageNumbers(current, pageCount).map(
+                                (entry, index) =>
+                                    entry === null ? (
+                                        <span
+                                            key={`gap-${index}`}
+                                            className="px-1 text-xs text-muted-foreground"
+                                        >
+                                            …
+                                        </span>
+                                    ) : (
+                                        <PageButton
+                                            key={entry}
+                                            active={entry === current}
+                                            onClick={() => setPage(entry)}
+                                        >
+                                            {entry}
+                                        </PageButton>
+                                    ),
                             )}
 
                             <PageButton
@@ -255,9 +264,9 @@ export function DataTable<T extends Record<string, unknown>>({
                             </PageButton>
                         </nav>
                     ) : null}
-                </footer>
+                </CardFooter>
             ) : null}
-        </section>
+        </Card>
     );
 }
 
@@ -279,7 +288,7 @@ function PageButton({
             disabled={disabled}
             aria-current={active ? 'page' : undefined}
             className={cn(
-                'inline-flex size-7 items-center justify-center rounded-md text-xs transition-colors',
+                'inline-flex size-7 items-center justify-center text-xs tabular-nums transition-colors',
                 active
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
@@ -298,7 +307,9 @@ function pageNumbers(current: number, total: number): (number | null)[] {
     }
 
     const pages = new Set([1, total, current, current - 1, current + 1]);
-    const sorted = [...pages].filter((page) => page >= 1 && page <= total).sort((a, b) => a - b);
+    const sorted = [...pages]
+        .filter((page) => page >= 1 && page <= total)
+        .sort((a, b) => a - b);
 
     return sorted.flatMap((page, index) =>
         index > 0 && page - sorted[index - 1] > 1 ? [null, page] : [page],

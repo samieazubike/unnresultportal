@@ -1,11 +1,15 @@
 import { Head, useForm } from '@inertiajs/react';
 import { Building2, Plus } from 'lucide-react';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    NativeSelect,
+    NativeSelectOption,
+} from '@/components/ui/native-select';
 
 type Faculty = { id: number; faculty_name: string; departments_count: number };
 
@@ -50,8 +54,10 @@ export default function Structure({
             <Head title="Faculties & departments" />
 
             <div className="flex flex-col gap-4 p-4">
-                <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
-                    <h2 className="text-sm font-semibold">Failure-rate threshold</h2>
+                <section className="bg-card p-4 shadow-sm ring-1 ring-foreground/5">
+                    <h2 className="text-xs font-semibold tracking-widest uppercase">
+                        Failure-rate threshold
+                    </h2>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                         A course whose failure rate for a session exceeds this
                         percentage is flagged across every dashboard.
@@ -67,7 +73,10 @@ export default function Structure({
                         className="mt-3 flex items-end gap-2"
                     >
                         <div>
-                            <Label htmlFor="failure_threshold" className="sr-only">
+                            <Label
+                                htmlFor="failure_threshold"
+                                className="sr-only"
+                            >
                                 Threshold
                             </Label>
                             <Input
@@ -86,16 +95,23 @@ export default function Structure({
                                 className="w-28"
                             />
                         </div>
-                        <span className="pb-2 text-sm text-muted-foreground">%</span>
-                        <Button type="submit" disabled={thresholdForm.processing}>
+                        <span className="pb-2 text-sm text-muted-foreground">
+                            %
+                        </span>
+                        <Button
+                            type="submit"
+                            disabled={thresholdForm.processing}
+                        >
                             Save
                         </Button>
                     </form>
-                    <InputError message={thresholdForm.errors.failure_threshold} />
+                    <InputError
+                        message={thresholdForm.errors.failure_threshold}
+                    />
                 </section>
 
                 <div className="grid gap-4 lg:grid-cols-2">
-                    <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
+                    <section className="bg-card p-4 shadow-sm ring-1 ring-foreground/5">
                         <h2 className="flex items-center gap-2 text-sm font-semibold">
                             <Building2 className="size-4" />
                             Faculties
@@ -128,27 +144,36 @@ export default function Structure({
                             <Input
                                 value={facultyForm.data.faculty_name}
                                 onChange={(e) =>
-                                    facultyForm.setData('faculty_name', e.target.value)
+                                    facultyForm.setData(
+                                        'faculty_name',
+                                        e.target.value,
+                                    )
                                 }
                                 placeholder="Faculty of ..."
                                 aria-label="Faculty name"
                             />
-                            <Button type="submit" disabled={facultyForm.processing}>
-                                <Plus className="size-4" />
+                            <Button
+                                type="submit"
+                                disabled={facultyForm.processing}
+                            >
+                                <Plus data-icon="inline-start" />
                             </Button>
                         </form>
                         <InputError message={facultyForm.errors.faculty_name} />
                     </section>
 
-                    <section className="rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
-                        <h2 className="text-sm font-semibold">Add a department</h2>
+                    <section className="bg-card p-4 shadow-sm ring-1 ring-foreground/5">
+                        <h2 className="text-xs font-semibold tracking-widest uppercase">
+                            Add a department
+                        </h2>
 
                         <form
                             onSubmit={(event) => {
                                 event.preventDefault();
                                 departmentForm.post('/admin/departments', {
                                     preserveScroll: true,
-                                    onSuccess: () => departmentForm.reset('dept_name'),
+                                    onSuccess: () =>
+                                        departmentForm.reset('dept_name'),
                                 });
                             }}
                             className="mt-3 space-y-3"
@@ -159,15 +184,20 @@ export default function Structure({
                                     id="dept_name"
                                     value={departmentForm.data.dept_name}
                                     onChange={(e) =>
-                                        departmentForm.setData('dept_name', e.target.value)
+                                        departmentForm.setData(
+                                            'dept_name',
+                                            e.target.value,
+                                        )
                                     }
                                 />
-                                <InputError message={departmentForm.errors.dept_name} />
+                                <InputError
+                                    message={departmentForm.errors.dept_name}
+                                />
                             </div>
 
                             <div>
                                 <Label htmlFor="faculty_id">Faculty</Label>
-                                <select
+                                <NativeSelect
                                     id="faculty_id"
                                     value={departmentForm.data.faculty_id}
                                     onChange={(e) =>
@@ -176,17 +206,23 @@ export default function Structure({
                                             Number(e.target.value),
                                         )
                                     }
-                                    className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                                    className="w-full"
                                 >
                                     {faculties.map((faculty) => (
-                                        <option key={faculty.id} value={faculty.id}>
+                                        <NativeSelectOption
+                                            key={faculty.id}
+                                            value={faculty.id}
+                                        >
                                             {faculty.faculty_name}
-                                        </option>
+                                        </NativeSelectOption>
                                     ))}
-                                </select>
+                                </NativeSelect>
                             </div>
 
-                            <Button type="submit" disabled={departmentForm.processing}>
+                            <Button
+                                type="submit"
+                                disabled={departmentForm.processing}
+                            >
                                 Add department
                             </Button>
                         </form>
@@ -206,5 +242,7 @@ export default function Structure({
 }
 
 Structure.layout = () => ({
-    breadcrumbs: [{ title: 'Faculties & departments', href: '/admin/structure' }],
+    breadcrumbs: [
+        { title: 'Faculties & departments', href: '/admin/structure' },
+    ],
 });

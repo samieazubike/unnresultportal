@@ -1,12 +1,16 @@
 import { Head, router } from '@inertiajs/react';
 import { GraduationCap, ListChecks } from 'lucide-react';
-import { GradeDistributionChart  } from '@/components/charts/grade-distribution-chart';
-import type {GradeCount} from '@/components/charts/grade-distribution-chart';
+import { GradeDistributionChart } from '@/components/charts/grade-distribution-chart';
+import type { GradeCount } from '@/components/charts/grade-distribution-chart';
 import { PerformanceComparisonChart } from '@/components/charts/performance-comparison-chart';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { StatCard } from '@/components/stat-card';
+import {
+    NativeSelect,
+    NativeSelectOption,
+} from '@/components/ui/native-select';
 import type {
     DepartmentPerformance,
     FacultyPerformance,
@@ -20,7 +24,11 @@ type Props = {
     facultyPerformance: FacultyPerformance[];
     failureRates: FailureRate[];
     failureThreshold: number;
-    selectedCourse: { id: number; course_code: string; course_title: string } | null;
+    selectedCourse: {
+        id: number;
+        course_code: string;
+        course_title: string;
+    } | null;
     gradeDistribution: GradeCount[];
     courses: { id: number; course_code: string; course_title: string }[];
     sessions: string[];
@@ -94,7 +102,10 @@ export default function StaffDashboard({
                         title="Institution"
                         icon={GraduationCap}
                         tiles={[
-                            { label: 'Students', value: summary.students.toLocaleString() },
+                            {
+                                label: 'Students',
+                                value: summary.students.toLocaleString(),
+                            },
                             { label: 'Courses', value: summary.courses },
                             {
                                 label: 'Published results',
@@ -104,7 +115,10 @@ export default function StaffDashboard({
                             {
                                 label: 'Flagged courses',
                                 value: summary.flagged_courses,
-                                tone: summary.flagged_courses > 0 ? 'destructive' : 'default',
+                                tone:
+                                    summary.flagged_courses > 0
+                                        ? 'destructive'
+                                        : 'default',
                             },
                         ]}
                     />
@@ -116,12 +130,18 @@ export default function StaffDashboard({
                             {
                                 label: 'Awaiting review',
                                 value: summary.pending_review,
-                                tone: summary.pending_review > 0 ? 'warning' : 'default',
+                                tone:
+                                    summary.pending_review > 0
+                                        ? 'warning'
+                                        : 'default',
                             },
                             {
                                 label: 'Awaiting release',
                                 value: summary.awaiting_release,
-                                tone: summary.awaiting_release > 0 ? 'primary' : 'default',
+                                tone:
+                                    summary.awaiting_release > 0
+                                        ? 'primary'
+                                        : 'default',
                                 hint: 'Approved but not published',
                             },
                         ]}
@@ -160,7 +180,7 @@ export default function StaffDashboard({
                             : 'Grade distribution'
                     }
                     action={
-                        <select
+                        <NativeSelect
                             value={selectedCourse?.id ?? ''}
                             onChange={(event) =>
                                 navigate({
@@ -168,15 +188,18 @@ export default function StaffDashboard({
                                     ...(session ? { session } : {}),
                                 })
                             }
-                            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
+                            size="sm"
                             aria-label="Course"
                         >
                             {courses.map((course) => (
-                                <option key={course.id} value={course.id}>
+                                <NativeSelectOption
+                                    key={course.id}
+                                    value={course.id}
+                                >
                                     {course.course_code}
-                                </option>
+                                </NativeSelectOption>
                             ))}
-                        </select>
+                        </NativeSelect>
                     }
                 />
 
@@ -188,7 +211,7 @@ export default function StaffDashboard({
                     rowKey={(row) => `${row.course_code}-${row.session}`}
                     emptyMessage="No published results to analyse yet."
                     action={
-                        <select
+                        <NativeSelect
                             value={session ?? ''}
                             onChange={(event) =>
                                 navigate({
@@ -198,16 +221,18 @@ export default function StaffDashboard({
                                         : {}),
                                 })
                             }
-                            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
+                            size="sm"
                             aria-label="Session"
                         >
-                            <option value="">All sessions</option>
+                            <NativeSelectOption value="">
+                                All sessions
+                            </NativeSelectOption>
                             {sessions.map((entry) => (
-                                <option key={entry} value={entry}>
+                                <NativeSelectOption key={entry} value={entry}>
                                     {entry}
-                                </option>
+                                </NativeSelectOption>
                             ))}
-                        </select>
+                        </NativeSelect>
                     }
                 />
             </div>

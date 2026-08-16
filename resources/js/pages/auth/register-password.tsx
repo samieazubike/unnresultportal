@@ -74,7 +74,7 @@ export default function RegisterPassword({
 
                         <Button
                             type="submit"
-                            className="h-12 w-full rounded-lg"
+                            className="w-full"
                             tabIndex={3}
                             data-test="set-password-button"
                         >

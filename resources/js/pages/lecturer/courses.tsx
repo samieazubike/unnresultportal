@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Crown, Users } from 'lucide-react';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { Button } from '@/components/ui/button';
 
@@ -30,7 +30,9 @@ export default function LecturerCourses({
         {
             key: 'course_code',
             header: 'Code',
-            cell: (row) => <span className="font-medium">{row.course_code}</span>,
+            cell: (row) => (
+                <span className="font-medium">{row.course_code}</span>
+            ),
         },
         { key: 'course_title', header: 'Title' },
         { key: 'department', header: 'Department' },

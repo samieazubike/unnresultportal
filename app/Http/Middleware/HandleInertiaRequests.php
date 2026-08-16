@@ -53,6 +53,11 @@ class HandleInertiaRequests extends Middleware
             // than returned as props because the lecturer must see the whole
             // list on the sheet they uploaded from, before anything is saved.
             'importErrors' => fn () => $request->session()->get('importErrors', []),
+
+            // The readable rows of that same upload. Staged, not saved: they
+            // land in the score sheet's inputs as unsaved edits and are written
+            // only when the lecturer saves.
+            'importRows' => fn () => $request->session()->get('importRows', []),
         ];
     }
 }

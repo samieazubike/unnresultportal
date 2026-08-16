@@ -42,7 +42,11 @@ export default function StudentResults({
 
     return (
         <>
-            <Head title={isOwnResults ? 'My results' : `${student.name} — results`} />
+            <Head
+                title={
+                    isOwnResults ? 'My results' : `${student.name} — results`
+                }
+            />
 
             <div className="flex flex-col gap-4 p-4">
                 {hasWithheldResults ? (
@@ -57,7 +61,10 @@ export default function StudentResults({
                     <StatCard
                         title={student.name}
                         tiles={[
-                            { label: 'Registration number', value: student.reg_number },
+                            {
+                                label: 'Registration number',
+                                value: student.reg_number,
+                            },
                             { label: 'Department', value: student.department },
                             { label: 'Entry year', value: student.entry_year },
                             {
@@ -68,7 +75,7 @@ export default function StudentResults({
                         className="lg:col-span-2"
                     />
 
-                    <section className="flex flex-col justify-between rounded-[var(--radius)] border border-border bg-card p-4 shadow-xs">
+                    <section className="flex flex-col justify-between bg-card p-4 shadow-sm ring-1 ring-foreground/5">
                         <div>
                             <p className="text-xs text-muted-foreground">
                                 Cumulative GPA
@@ -79,12 +86,14 @@ export default function StudentResults({
                                     / 5.00
                                 </span>
                             </p>
-                            <p className="mt-1 text-sm">{standing.classification}</p>
+                            <p className="mt-1 text-sm">
+                                {standing.classification}
+                            </p>
                         </div>
 
                         <Button asChild className="mt-4 w-full">
                             <a href={transcriptUrl}>
-                                <Download className="size-4" />
+                                <Download data-icon="inline-start" />
                                 Download transcript
                             </a>
                         </Button>
@@ -127,7 +136,7 @@ export default function StudentResults({
                 ) : null}
 
                 {sessions.length === 0 ? (
-                    <div className="flex flex-col items-center gap-2 rounded-[var(--radius)] border border-border bg-card p-12 text-center">
+                    <div className="flex flex-col items-center gap-2 bg-card p-12 text-center ring-1 ring-foreground/5">
                         <ShieldAlert className="size-6 text-muted-foreground" />
                         <p className="text-sm font-medium">
                             No results have been published yet
@@ -141,10 +150,10 @@ export default function StudentResults({
                     sessions.map((session) => (
                         <section
                             key={`${session.session}-${session.semester}`}
-                            className="overflow-hidden rounded-[var(--radius)] border border-border bg-card shadow-xs"
+                            className="overflow-hidden bg-card shadow-sm ring-1 ring-foreground/5"
                         >
                             <header className="flex flex-wrap items-center gap-3 border-b border-border p-4">
-                                <h2 className="text-sm font-semibold">
+                                <h2 className="text-xs font-semibold tracking-widest uppercase">
                                     {session.label}
                                 </h2>
                                 <div className="ml-auto flex items-center gap-4 text-sm">
@@ -164,14 +173,30 @@ export default function StudentResults({
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="hover:bg-transparent">
-                                            <TableHead className="text-xs">Code</TableHead>
-                                            <TableHead className="text-xs">Course title</TableHead>
-                                            <TableHead className="text-center text-xs">Units</TableHead>
-                                            <TableHead className="text-right text-xs">CA</TableHead>
-                                            <TableHead className="text-right text-xs">Exam</TableHead>
-                                            <TableHead className="text-right text-xs">Total</TableHead>
-                                            <TableHead className="text-center text-xs">Grade</TableHead>
-                                            <TableHead className="text-center text-xs">Point</TableHead>
+                                            <TableHead className="text-xs">
+                                                Code
+                                            </TableHead>
+                                            <TableHead className="text-xs">
+                                                Course title
+                                            </TableHead>
+                                            <TableHead className="text-center text-xs">
+                                                Units
+                                            </TableHead>
+                                            <TableHead className="text-right text-xs">
+                                                CA
+                                            </TableHead>
+                                            <TableHead className="text-right text-xs">
+                                                Exam
+                                            </TableHead>
+                                            <TableHead className="text-right text-xs">
+                                                Total
+                                            </TableHead>
+                                            <TableHead className="text-center text-xs">
+                                                Grade
+                                            </TableHead>
+                                            <TableHead className="text-center text-xs">
+                                                Point
+                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -190,13 +215,19 @@ export default function StudentResults({
                                                     {course.ca_score.toFixed(1)}
                                                 </TableCell>
                                                 <TableCell className="text-right tabular-nums">
-                                                    {course.exam_score.toFixed(1)}
+                                                    {course.exam_score.toFixed(
+                                                        1,
+                                                    )}
                                                 </TableCell>
                                                 <TableCell className="text-right font-medium tabular-nums">
-                                                    {course.total_score.toFixed(1)}
+                                                    {course.total_score.toFixed(
+                                                        1,
+                                                    )}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <GradeBadge grade={course.grade} />
+                                                    <GradeBadge
+                                                        grade={course.grade}
+                                                    />
                                                 </TableCell>
                                                 <TableCell className="text-center tabular-nums">
                                                     {course.grade_point}

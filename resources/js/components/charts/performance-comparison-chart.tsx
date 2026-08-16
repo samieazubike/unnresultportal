@@ -51,7 +51,13 @@ export function PerformanceComparisonChart({
                     margin={{ top: 4, right: 16, left: 8, bottom: 0 }}
                 >
                     <defs>
-                        <linearGradient id="hBarFill" x1="0" y1="0" x2="1" y2="0">
+                        <linearGradient
+                            id="hBarFill"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="0"
+                        >
                             <stop offset="0%" stopColor="var(--chart-1)" />
                             <stop offset="100%" stopColor="var(--chart-2)" />
                         </linearGradient>
@@ -88,7 +94,8 @@ export function PerformanceComparisonChart({
                             fontSize: 12,
                         }}
                         formatter={(value, _name, item) => {
-                            const row = item?.payload as PerformanceRow | undefined;
+                            const row = item?.payload as
+                                PerformanceRow | undefined;
 
                             return [
                                 `${Number(value ?? 0).toFixed(2)} average CGPA across ${row?.students ?? 0} students`,

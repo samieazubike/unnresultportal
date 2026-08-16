@@ -1,8 +1,8 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { Crown, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { DataTable  } from '@/components/data-table';
-import type {Column} from '@/components/data-table';
+import { DataTable } from '@/components/data-table';
+import type { Column } from '@/components/data-table';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,6 +15,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    NativeSelect,
+    NativeSelectOption,
+} from '@/components/ui/native-select';
 
 type Lecturer = { id: number; name: string; email: string };
 
@@ -35,7 +39,11 @@ type Props = {
     lecturers: Lecturer[];
 };
 
-export default function AdminCourses({ courses, departments, lecturers }: Props) {
+export default function AdminCourses({
+    courses,
+    departments,
+    lecturers,
+}: Props) {
     const [editing, setEditing] = useState<CourseRow | null>(null);
     const [open, setOpen] = useState(false);
 
@@ -114,7 +122,9 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
         {
             key: 'course_code',
             header: 'Code',
-            cell: (row) => <span className="font-medium">{row.course_code}</span>,
+            cell: (row) => (
+                <span className="font-medium">{row.course_code}</span>
+            ),
         },
         { key: 'course_title', header: 'Title' },
         { key: 'department', header: 'Department' },
@@ -125,7 +135,9 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
             sortValue: (row) => row.lecturers.length,
             cell: (row) =>
                 row.lecturers.length === 0 ? (
-                    <span className="text-xs text-muted-foreground">Unassigned</span>
+                    <span className="text-xs text-muted-foreground">
+                        Unassigned
+                    </span>
                 ) : (
                     <div className="flex flex-wrap gap-1">
                         {row.lecturers.map((lecturer) => (
@@ -148,7 +160,11 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
             align: 'right',
             cell: (row) => (
                 <div className="flex justify-end gap-2">
-                    <Button size="sm" variant="outline" onClick={() => startEdit(row)}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => startEdit(row)}
+                    >
                         Edit
                     </Button>
                     <Button
@@ -181,7 +197,7 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                     pageSize={12}
                     action={
                         <Button size="sm" onClick={startCreate}>
-                            <Plus className="size-4" />
+                            <Plus data-icon="inline-start" />
                             Add course
                         </Button>
                     }
@@ -192,7 +208,9 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                 <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
                     <DialogHeader>
                         <DialogTitle>
-                            {editing ? `Edit ${editing.course_code}` : 'Add course'}
+                            {editing
+                                ? `Edit ${editing.course_code}`
+                                : 'Add course'}
                         </DialogTitle>
                     </DialogHeader>
 
@@ -203,14 +221,21 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                                 <Input
                                     id="course_code"
                                     value={form.data.course_code}
-                                    onChange={(e) => form.setData('course_code', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'course_code',
+                                            e.target.value,
+                                        )
+                                    }
                                     placeholder="COS 421"
                                 />
                                 <InputError message={form.errors.course_code} />
                             </div>
 
                             <div>
-                                <Label htmlFor="credit_units">Credit units</Label>
+                                <Label htmlFor="credit_units">
+                                    Credit units
+                                </Label>
                                 <Input
                                     id="credit_units"
                                     type="number"
@@ -218,10 +243,15 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                                     max={6}
                                     value={form.data.credit_units}
                                     onChange={(e) =>
-                                        form.setData('credit_units', Number(e.target.value))
+                                        form.setData(
+                                            'credit_units',
+                                            Number(e.target.value),
+                                        )
                                     }
                                 />
-                                <InputError message={form.errors.credit_units} />
+                                <InputError
+                                    message={form.errors.credit_units}
+                                />
                             </div>
                         </div>
 
@@ -230,25 +260,35 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                             <Input
                                 id="course_title"
                                 value={form.data.course_title}
-                                onChange={(e) => form.setData('course_title', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('course_title', e.target.value)
+                                }
                             />
                             <InputError message={form.errors.course_title} />
                         </div>
 
                         <div>
                             <Label htmlFor="dept_id">Department</Label>
-                            <select
+                            <NativeSelect
                                 id="dept_id"
                                 value={form.data.dept_id}
-                                onChange={(e) => form.setData('dept_id', Number(e.target.value))}
-                                className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+                                onChange={(e) =>
+                                    form.setData(
+                                        'dept_id',
+                                        Number(e.target.value),
+                                    )
+                                }
+                                className="w-full"
                             >
                                 {departments.map((department) => (
-                                    <option key={department.id} value={department.id}>
+                                    <NativeSelectOption
+                                        key={department.id}
+                                        value={department.id}
+                                    >
                                         {department.dept_name}
-                                    </option>
+                                    </NativeSelectOption>
                                 ))}
-                            </select>
+                            </NativeSelect>
                             <InputError message={form.errors.dept_id} />
                         </div>
 
@@ -257,13 +297,16 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                                 Teaching team
                             </legend>
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                                Up to three lecturers. The head submits the sheet
-                                for review; every member may enter scores.
+                                Up to three lecturers. The head submits the
+                                sheet for review; every member may enter scores.
                             </p>
 
                             <div className="mt-2 max-h-52 space-y-1 overflow-y-auto rounded-md border border-border p-2">
                                 {lecturers.map((lecturer) => {
-                                    const selected = form.data.lecturer_ids.includes(lecturer.id);
+                                    const selected =
+                                        form.data.lecturer_ids.includes(
+                                            lecturer.id,
+                                        );
 
                                     return (
                                         <div
@@ -273,7 +316,9 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                                             <Checkbox
                                                 id={`lecturer-${lecturer.id}`}
                                                 checked={selected}
-                                                onCheckedChange={() => toggleLecturer(lecturer.id)}
+                                                onCheckedChange={() =>
+                                                    toggleLecturer(lecturer.id)
+                                                }
                                             />
                                             <Label
                                                 htmlFor={`lecturer-${lecturer.id}`}
@@ -286,10 +331,14 @@ export default function AdminCourses({ courses, departments, lecturers }: Props)
                                                 <button
                                                     type="button"
                                                     onClick={() =>
-                                                        form.setData('head_id', lecturer.id)
+                                                        form.setData(
+                                                            'head_id',
+                                                            lecturer.id,
+                                                        )
                                                     }
                                                     className={
-                                                        form.data.head_id === lecturer.id
+                                                        form.data.head_id ===
+                                                        lecturer.id
                                                             ? 'inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground'
                                                             : 'rounded-full px-2 py-0.5 text-xs text-muted-foreground hover:bg-accent'
                                                     }

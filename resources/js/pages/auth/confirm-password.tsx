@@ -23,7 +23,7 @@ export default function ConfirmPassword() {
                         />
 
                         <Button
-                            className="h-12 w-full rounded-lg"
+                            className="w-full"
                             disabled={processing}
                             data-test="confirm-password-button"
                         >

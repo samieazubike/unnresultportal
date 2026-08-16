@@ -46,7 +46,7 @@ export default function Register() {
 
                         <Button
                             type="submit"
-                            className="h-12 w-full rounded-lg"
+                            className="w-full"
                             tabIndex={3}
                             data-test="register-user-button"
                         >

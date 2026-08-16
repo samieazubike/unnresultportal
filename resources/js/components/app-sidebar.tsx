@@ -45,14 +45,32 @@ function navigationFor(role: UserRole): NavGroup[] {
             {
                 label: 'Main',
                 items: [
-                    { title: 'Dashboard', href: '/student/dashboard', icon: LayoutGrid },
-                    { title: 'My results', href: '/student/results', icon: FileText },
-                    { title: 'Course registration', href: '/student/registration', icon: ClipboardList },
+                    {
+                        title: 'Dashboard',
+                        href: '/student/dashboard',
+                        icon: LayoutGrid,
+                    },
+                    {
+                        title: 'My results',
+                        href: '/student/results',
+                        icon: FileText,
+                    },
+                    {
+                        title: 'Course registration',
+                        href: '/student/registration',
+                        icon: ClipboardList,
+                    },
                 ],
             },
             {
                 label: 'Records',
-                items: [{ title: 'Transcript', href: '/transcript', icon: GraduationCap }],
+                items: [
+                    {
+                        title: 'Transcript',
+                        href: '/transcript',
+                        icon: GraduationCap,
+                    },
+                ],
             },
         ],
 
@@ -60,8 +78,16 @@ function navigationFor(role: UserRole): NavGroup[] {
             {
                 label: 'Main',
                 items: [
-                    { title: 'Dashboard', href: '/lecturer/dashboard', icon: LayoutGrid },
-                    { title: 'My courses', href: '/lecturer/courses', icon: BookOpen },
+                    {
+                        title: 'Dashboard',
+                        href: '/lecturer/dashboard',
+                        icon: LayoutGrid,
+                    },
+                    {
+                        title: 'My courses',
+                        href: '/lecturer/courses',
+                        icon: BookOpen,
+                    },
                 ],
             },
         ],
@@ -70,15 +96,27 @@ function navigationFor(role: UserRole): NavGroup[] {
             {
                 label: 'Main',
                 items: [
-                    { title: 'Dashboard', href: '/dashboards/department', icon: LayoutGrid },
+                    {
+                        title: 'Dashboard',
+                        href: '/dashboards/department',
+                        icon: LayoutGrid,
+                    },
                 ],
             },
             {
                 label: 'Results',
                 items: [
-                    { title: 'Review sheets', href: '/review', icon: ListChecks },
+                    {
+                        title: 'Review sheets',
+                        href: '/review',
+                        icon: ListChecks,
+                    },
                     { title: 'Publish results', href: '/publish', icon: Send },
-                    { title: 'Integrity', href: '/integrity', icon: ShieldAlert },
+                    {
+                        title: 'Integrity',
+                        href: '/integrity',
+                        icon: ShieldAlert,
+                    },
                 ],
             },
         ],
@@ -87,14 +125,22 @@ function navigationFor(role: UserRole): NavGroup[] {
             {
                 label: 'Main',
                 items: [
-                    { title: 'Dashboard', href: '/dashboards/department', icon: LayoutGrid },
+                    {
+                        title: 'Dashboard',
+                        href: '/dashboards/department',
+                        icon: LayoutGrid,
+                    },
                 ],
             },
             {
                 label: 'Results',
                 items: [
                     { title: 'Publish results', href: '/publish', icon: Send },
-                    { title: 'Integrity', href: '/integrity', icon: ShieldAlert },
+                    {
+                        title: 'Integrity',
+                        href: '/integrity',
+                        icon: ShieldAlert,
+                    },
                 ],
             },
         ],
@@ -103,15 +149,31 @@ function navigationFor(role: UserRole): NavGroup[] {
             {
                 label: 'Main',
                 items: [
-                    { title: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
-                    { title: 'Performance', href: '/dashboards/department', icon: BadgeCheck },
+                    {
+                        title: 'Dashboard',
+                        href: '/admin/dashboard',
+                        icon: LayoutGrid,
+                    },
+                    {
+                        title: 'Performance',
+                        href: '/dashboards/department',
+                        icon: BadgeCheck,
+                    },
                 ],
             },
             {
                 label: 'Management',
                 items: [
-                    { title: 'Courses', href: '/admin/courses', icon: BookOpen },
-                    { title: 'Faculties & departments', href: '/admin/structure', icon: Building2 },
+                    {
+                        title: 'Courses',
+                        href: '/admin/courses',
+                        icon: BookOpen,
+                    },
+                    {
+                        title: 'Faculties & departments',
+                        href: '/admin/structure',
+                        icon: Building2,
+                    },
                     { title: 'Users', href: '/admin/users', icon: Users },
                 ],
             },
@@ -145,7 +207,7 @@ export function AppSidebar() {
             <SidebarContent>
                 {groups.map((group) => (
                     <SidebarGroup key={group.label} className="px-2 py-0">
-                        <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                        <SidebarGroupLabel className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
                             {group.label}
                         </SidebarGroupLabel>
                         <SidebarMenu>

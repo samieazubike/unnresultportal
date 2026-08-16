@@ -43,7 +43,7 @@ class ExcelResultImporter
         // Registrations for this sheet, keyed by registration number: the
         // only students whose scores may legitimately appear in this file.
         $registrations = Registration::query()
-            ->with('student')
+            ->with(['student', 'result'])
             ->where('course_id', $course->getKey())
             ->where('session', $session)
             ->where('semester', $semester)
@@ -71,6 +71,7 @@ class ExcelResultImporter
             $problem = match (true) {
                 $regNumber === '' => 'Registration number is missing.',
                 ! $registrations->has($key) => "No student with registration number {$regNumber} is registered for {$course->course_code} in {$session} semester {$semester}.",
+                $registrations->get($key)->result?->allowsScoreEditing() === false => "Scores for {$regNumber} are locked (already approved) and cannot be changed.",
                 isset($seen[$key]) => "Duplicate row: {$regNumber} already appears on row {$seen[$key]}.",
                 $this->isBlank($caRaw) => 'CA score is missing.',
                 $this->isBlank($examRaw) => 'Exam score is missing.',
@@ -108,6 +109,11 @@ class ExcelResultImporter
      *
      * Nothing is saved while any row is in error — §10 requires the lecturer
      * to see the full list first.
+     *
+     * The lecturer's upload no longer goes through here: it stages the parsed
+     * rows into the score sheet's inputs via {@see preview()} and writes only
+     * when the lecturer saves. This remains the transactional writer for any
+     * caller that wants a sheet applied in one step.
      *
      * @return array{imported: int, errors: list<array{row: int, reg_number: string, message: string}>}
      */

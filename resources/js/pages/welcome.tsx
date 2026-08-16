@@ -54,7 +54,10 @@ function SiteHeader({ signedIn }: { signedIn: boolean }) {
     return (
         <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
             <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
-                <Link href="/" className="shrink-0 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none">
+                <Link
+                    href="/"
+                    className="shrink-0 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
                     <BrandMark />
                 </Link>
 
@@ -78,7 +81,7 @@ function SiteHeader({ signedIn }: { signedIn: boolean }) {
                     {signedIn ? (
                         <Link
                             href="/dashboard"
-                            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                            className="inline-flex items-center gap-1.5 rounded-none bg-primary px-4 py-2 text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                         >
                             Dashboard
                             <ArrowRight className="size-3.5" />
@@ -87,13 +90,13 @@ function SiteHeader({ signedIn }: { signedIn: boolean }) {
                         <>
                             <Link
                                 href={register()}
-                                className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:inline-block"
+                                className="hidden rounded-none px-3 py-2 text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:inline-block"
                             >
                                 Register
                             </Link>
                             <Link
                                 href={login()}
-                                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                                className="rounded-none bg-primary px-4 py-2 text-xs font-semibold tracking-widest text-primary-foreground uppercase transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                             >
                                 Log in
                             </Link>
@@ -132,7 +135,7 @@ function Hero({ signedIn }: { signedIn: boolean }) {
                 <div className="mt-8 flex flex-wrap items-center gap-3">
                     <Link
                         href={signedIn ? '/dashboard' : login()}
-                        className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand focus-visible:outline-none"
+                        className="inline-flex items-center gap-2 rounded-none bg-white px-6 py-3 text-xs font-semibold tracking-widest text-brand uppercase transition-colors hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand focus-visible:outline-none"
                     >
                         {signedIn ? 'Go to dashboard' : 'Log in'}
                         <ArrowRight className="size-4" />
@@ -140,7 +143,7 @@ function Hero({ signedIn }: { signedIn: boolean }) {
 
                     <a
                         href="#workflow"
-                        className="inline-flex items-center gap-2 rounded-lg border border-white/30 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand focus-visible:outline-none"
+                        className="inline-flex items-center gap-2 rounded-none border border-white/30 px-6 py-3 text-xs font-semibold tracking-widest text-white uppercase transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand focus-visible:outline-none"
                     >
                         How results are released
                     </a>
@@ -225,7 +228,10 @@ function HeroPattern() {
 
 function Capabilities() {
     return (
-        <section id="system" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <section
+            id="system"
+            className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20"
+        >
             <SectionHeading
                 eyebrow="What it does"
                 title="Two systems, one application"
@@ -271,7 +277,7 @@ function FeatureCard({
     points: [string, typeof BarChart3][];
 }) {
     return (
-        <article className="rounded-[var(--radius)] border border-border bg-card p-6 shadow-xs">
+        <article className="bg-card p-6 shadow-sm ring-1 ring-foreground/5">
             <span className="inline-flex size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                 <Icon className="size-5" />
             </span>
@@ -283,7 +289,10 @@ function FeatureCard({
 
             <ul className="mt-5 space-y-2.5 border-t border-border pt-5">
                 {points.map(([label, PointIcon]) => (
-                    <li key={label} className="flex items-center gap-2.5 text-sm">
+                    <li
+                        key={label}
+                        className="flex items-center gap-2.5 text-sm"
+                    >
                         <PointIcon className="size-4 shrink-0 text-primary" />
                         {label}
                     </li>
@@ -335,13 +344,13 @@ function Workflow() {
                     {WORKFLOW.map((step, index) => (
                         <li
                             key={step.label}
-                            className="relative rounded-[var(--radius)] border border-border bg-card p-5 shadow-xs"
+                            className="relative bg-card p-5 shadow-sm ring-1 ring-foreground/5"
                         >
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex size-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                                     {index + 1}
                                 </span>
-                                <h3 className="text-sm font-semibold">
+                                <h3 className="text-xs font-semibold tracking-widest uppercase">
                                     {step.label}
                                 </h3>
                             </div>
@@ -405,7 +414,10 @@ const ROLES = [
 
 function Roles() {
     return (
-        <section id="roles" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <section
+            id="roles"
+            className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20"
+        >
             <SectionHeading
                 eyebrow="Who uses it"
                 title="Five roles, each with its own dashboard"
@@ -416,7 +428,7 @@ function Roles() {
                 {ROLES.map((role) => (
                     <article
                         key={role.title}
-                        className="rounded-[var(--radius)] border border-border bg-card p-5 shadow-xs transition-colors hover:border-primary/30"
+                        className="bg-card p-5 shadow-sm ring-1 ring-foreground/5 transition-colors hover:border-primary/30"
                     >
                         <span className="inline-flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                             <role.icon className="size-4.5" />

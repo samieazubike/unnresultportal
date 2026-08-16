@@ -1,9 +1,13 @@
 import { cn } from '@/lib/utils';
 
 /**
- * The tinted pill badges from the design, mapped onto the two things this
- * system needs to signal at a glance: a grade, and where a result sits in the
- * approval workflow.
+ * A grade, and where a result sits in the approval workflow.
+ *
+ * Sera's Badge is text-only — no fill, no border. That reads well in prose but
+ * not in a score sheet of two hundred rows, where the whole job of these marks
+ * is to be findable by colour at a glance. So they keep a tinted block, and
+ * take Sera's shape instead: square, uppercase, tightly tracked. A deliberate
+ * local exception, not a disagreement with the theme.
  */
 
 const gradeTones: Record<string, string> = {
@@ -33,7 +37,7 @@ const statusLabels: Record<string, string> = {
 };
 
 const base =
-    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset';
+    'inline-flex items-center rounded-none px-1.5 py-0.5 text-[0.625rem] font-semibold tracking-widest uppercase ring-1 ring-inset';
 
 export function GradeBadge({
     grade,
@@ -48,7 +52,12 @@ export function GradeBadge({
 
     return (
         <span
-            className={cn(base, 'w-7 justify-center', gradeTones[grade], className)}
+            className={cn(
+                base,
+                'w-6 justify-center tracking-normal',
+                gradeTones[grade],
+                className,
+            )}
         >
             {grade}
         </span>
