@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Native\Desktop\Commands\FreshCommand as NativeFreshCommand;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
                 default => new NullDriver,
             };
         });
+
+        // NativePHP's command inherits the migrate:fresh signature, which renames it and breaks artisan's command lookup.
+        $this->app->extend(NativeFreshCommand::class, fn (NativeFreshCommand $command): NativeFreshCommand => $command->setName('native:migrate:fresh'));
     }
 
     /**
