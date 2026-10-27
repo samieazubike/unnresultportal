@@ -2,10 +2,12 @@
 
 use App\Enums\ResultStatus;
 use App\Models\Course;
+use App\Models\Recommendation;
 use App\Models\Registration;
 use App\Models\Result;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\Llm\LlmDriver;
 use App\Services\ResultIntegrityService;
 use Database\Factories\CourseFactory;
 use Illuminate\Http\UploadedFile;
@@ -204,6 +206,52 @@ describe('approval does not publish', function () {
             ->assertInertia(fn ($page) => $page
                 ->component('student/results')
                 ->where('sessions', [])
+                ->where('awaitingRelease', [])
+            );
+    });
+
+    it('tells neither the student portal nor dashboard that results are pending', function () {
+        $this->actingAs($this->officer)->post('/review/approve', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ]);
+
+        $this->actingAs($this->student->user)
+            ->get('/student/dashboard')
+            ->assertInertia(fn ($page) => $page
+                ->component('student/dashboard')
+                ->missing('awaitingRelease')
+            );
+    });
+
+    it('delivers the recommendation to the student dashboard as a deferred prop', function () {
+        $this->mock(LlmDriver::class, fn ($mock) => $mock->shouldReceive('isConfigured')->andReturn(false));
+
+        $this->actingAs($this->student->user)
+            ->get('/student/dashboard')
+            ->assertInertia(fn ($page) => $page
+                ->component('student/dashboard')
+                ->missing('recommendation')
+                ->loadDeferredProps(fn ($reload) => $reload
+                    ->where('recommendation.source', Recommendation::SOURCE_FALLBACK)
+                    ->whereType('recommendation.body', 'string')
+                )
+            );
+    });
+
+    it('still shows staff which of a student\'s sessions await release', function () {
+        $this->actingAs($this->officer)->post('/review/approve', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ]);
+
+        $this->actingAs($this->officer)
+            ->get("/students/{$this->student->id}/results")
+            ->assertInertia(fn ($page) => $page
+                ->component('student/results')
+                ->where('sessions', [])
                 ->has('awaitingRelease', 1)
                 ->where('awaitingRelease.0.label', '2025/2026 1st semester')
             );
@@ -262,6 +310,34 @@ describe('publication', function () {
         ]);
 
         app(ResultIntegrityService::class)->freeze($this->result, $this->officer);
+    });
+
+    it('moves a released sheet from the queue into the publication history', function () {
+        $this->actingAs($this->officer)
+            ->get('/publish')
+            ->assertInertia(fn ($page) => $page
+                ->has('sheets', 1)
+                ->where('history', [])
+            );
+
+        $this->actingAs($this->officer)->post('/publish', [
+            'course_id' => $this->course->id,
+            'session' => '2025/2026',
+            'semester' => 1,
+        ]);
+
+        $this->actingAs($this->officer)
+            ->get('/publish')
+            ->assertInertia(fn ($page) => $page
+                ->component('exam-officer/publish')
+                ->where('sheets', [])
+                ->has('history', 1)
+                ->where('history.0.course_code', 'COS 421')
+                ->where('history.0.session', '2025/2026')
+                ->where('history.0.results', 1)
+                ->where('history.0.published_by', $this->officer->name)
+                ->whereType('history.0.published_at', 'string')
+            );
     });
 
     it('releases the result and records who did it', function () {

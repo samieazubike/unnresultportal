@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ResultStatus;
 use Database\Factories\StudentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,6 +61,33 @@ class Student extends Model
             "lower(replace(reg_number, ' ', '')) = ?",
             [strtolower(preg_replace('/\s+/', '', $regNumber) ?? $regNumber)],
         );
+    }
+
+    /**
+     * Courses this student has failed and not yet passed: a published F with
+     * no published pass for the same course since.
+     *
+     * @return list<int>
+     */
+    public function carryoverCourseIds(): array
+    {
+        $passed = Registration::query()
+            ->select('course_id')
+            ->where('student_id', $this->getKey())
+            ->whereHas('result', fn ($query) => $query
+                ->where('status', ResultStatus::Published)
+                ->where('grade', '<>', 'F'));
+
+        return array_values(Registration::query()
+            ->where('student_id', $this->getKey())
+            ->whereHas('result', fn ($query) => $query
+                ->where('status', ResultStatus::Published)
+                ->where('grade', 'F'))
+            ->whereNotIn('course_id', $passed)
+            ->distinct()
+            ->pluck('course_id')
+            ->map(fn ($id) => (int) $id)
+            ->all());
     }
 
     /**

@@ -13,8 +13,9 @@ use Inertia\Response;
 /**
  * The student's results portal (README §14.9).
  *
- * Published results only. Sessions with results that exist but have not been
- * released appear as "awaiting release" and carry no scores in the payload.
+ * Published results only. A student is not told that unreleased results
+ * exist at all; staff viewing a student's record see those sessions as
+ * "awaiting release", still with no scores in the payload.
  */
 class StudentPortalController extends Controller
 {
@@ -45,6 +46,7 @@ class StudentPortalController extends Controller
     {
         $trend = $this->visualization->cgpaTrend($student->getKey());
         $cgpa = $trend === [] ? 0.0 : (float) end($trend)['cgpa'];
+        $isOwnResults = $student->user_id === $request->user()->getKey();
 
         return Inertia::render('student/results', [
             'student' => [
@@ -61,9 +63,9 @@ class StudentPortalController extends Controller
                 'credit_units_passed' => $this->portal->creditUnitsPassed($student),
             ],
             'sessions' => $this->portal->publishedResults($student),
-            'awaitingRelease' => $this->portal->sessionsAwaitingRelease($student),
+            'awaitingRelease' => $isOwnResults ? [] : $this->portal->sessionsAwaitingRelease($student),
             'hasWithheldResults' => $this->portal->hasWithheldResults($student),
-            'isOwnResults' => $student->user_id === $request->user()->getKey(),
+            'isOwnResults' => $isOwnResults,
         ]);
     }
 

@@ -50,7 +50,6 @@ class StudentDashboardController extends Controller
             ],
             'cgpaTrend' => $trend,
             'semesterGpas' => $this->visualization->semesterGpas($student->getKey()),
-            'awaitingRelease' => $this->portal->sessionsAwaitingRelease($student),
 
             // Deferred: the recommendation may call a language model, and the
             // dashboard should paint before it resolves.

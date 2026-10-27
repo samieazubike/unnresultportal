@@ -170,6 +170,11 @@ function navigationFor(role: UserRole): NavGroup[] {
                         icon: BookOpen,
                     },
                     {
+                        title: 'Course registration',
+                        href: '/admin/registration',
+                        icon: ClipboardList,
+                    },
+                    {
                         title: 'Faculties & departments',
                         href: '/admin/structure',
                         icon: Building2,

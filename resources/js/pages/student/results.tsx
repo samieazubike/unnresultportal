@@ -101,10 +101,9 @@ export default function StudentResults({
                 </div>
 
                 {/*
-                 * README §9: until published, the student sees "awaiting
-                 * release" for that session. No score is carried in the
-                 * payload for these — the block below has nothing to show
-                 * because there is nothing to show.
+                 * Staff only: a student is never sent this list. For staff
+                 * it names the sessions with unreleased results, and no
+                 * score is carried in the payload for them.
                  */}
                 {awaitingRelease.length > 0 ? (
                     <section className="rounded-[var(--radius)] border border-amber-500/25 bg-amber-50 p-4 dark:bg-amber-500/10">

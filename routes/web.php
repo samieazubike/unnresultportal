@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\CourseOfferingController;
+use App\Http\Controllers\Admin\RegistrationWindowController;
 use App\Http\Controllers\Admin\StructureController;
 use App\Http\Controllers\Admin\StudentRosterController;
 use App\Http\Controllers\Auth\AccountClaimCodeController;
@@ -178,6 +180,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('courses', [CourseController::class, 'store'])->name('courses.store');
         Route::put('courses/{course}', [CourseController::class, 'update'])->name('courses.update');
         Route::delete('courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
+
+        // Course registration: the courses pre-selected for each department
+        // and level, and the window during which students may change them.
+        Route::get('registration', [CourseOfferingController::class, 'index'])->name('registration');
+        Route::put('registration/offerings', [CourseOfferingController::class, 'update'])->name('registration.offerings');
+        Route::put('registration/window', [RegistrationWindowController::class, 'update'])->name('registration.window');
     });
 });
 

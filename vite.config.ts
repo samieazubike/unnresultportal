@@ -14,6 +14,7 @@ export default defineConfig({
             // Watching it exhausts the inotify limit (ENOSPC) on Linux.
             ignored: ['**/vendor/**', '**/storage/**', '**/bootstrap/cache/**'],
         },
+        allowedHosts: ['.ngrok-free.dev', '.ngrok-free.app', '.ngrok.io'],
     },
     plugins: [
         laravel({

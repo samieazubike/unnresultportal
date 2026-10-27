@@ -8,6 +8,8 @@ use App\Services\ResultIntegrityService;
 use App\Services\ResultWorkflowService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use RuntimeException;
@@ -32,7 +34,7 @@ class ResultPublicationController extends Controller
     ) {}
 
     /**
-     * Approved sheets awaiting release.
+     * Approved sheets awaiting release, and the sheets already released.
      */
     public function index(Request $request): Response
     {
@@ -72,7 +74,54 @@ class ResultPublicationController extends Controller
         return Inertia::render('exam-officer/publish', [
             'sheets' => $sheets,
             'integrityFailures' => count($tamperedIds),
+            'history' => $this->publicationHistory(),
         ]);
+    }
+
+    /**
+     * Sheets already released, newest first, with who released them.
+     *
+     * The release time is read off the audit trail rather than the result's
+     * updated_at, falling back to it only for rows that predate the trail.
+     *
+     * @return list<array{course_id: int, course_code: string, course_title: string, session: string,
+     *                    semester: int, results: int, failures: int, published_by: string|null, published_at: string|null}>
+     */
+    private function publicationHistory(): array
+    {
+        $rows = DB::select(<<<'SQL'
+            SELECT c.id AS course_id, c.course_code, c.course_title,
+                   reg.session, reg.semester,
+                   u.name AS published_by,
+                   COUNT(*) AS results,
+                   SUM(CASE WHEN res.grade = 'F' THEN 1 ELSE 0 END) AS failures,
+                   COALESCE(MAX(pub.published_at), MAX(res.updated_at)) AS published_at
+            FROM results res
+            JOIN registrations reg ON reg.id = res.registration_id
+            JOIN courses c         ON c.id  = reg.course_id
+            LEFT JOIN users u      ON u.id  = res.published_by
+            LEFT JOIN (
+                SELECT result_id, MAX(created_at) AS published_at
+                FROM result_audits
+                WHERE action = 'published'
+                GROUP BY result_id
+            ) pub ON pub.result_id = res.id
+            WHERE res.status = 'published'
+            GROUP BY c.id, c.course_code, c.course_title, reg.session, reg.semester, u.id, u.name
+            ORDER BY published_at DESC, c.course_code
+        SQL);
+
+        return array_map(fn (object $row) => [
+            'course_id' => (int) $row->course_id,
+            'course_code' => $row->course_code,
+            'course_title' => $row->course_title,
+            'session' => $row->session,
+            'semester' => (int) $row->semester,
+            'results' => (int) $row->results,
+            'failures' => (int) $row->failures,
+            'published_by' => $row->published_by,
+            'published_at' => $row->published_at === null ? null : Carbon::parse($row->published_at)->toIso8601String(),
+        ], $rows);
     }
 
     /**

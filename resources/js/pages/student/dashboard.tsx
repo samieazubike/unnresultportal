@@ -1,18 +1,12 @@
 import { Deferred, Head, Link } from '@inertiajs/react';
-import { BookOpen, Clock, GraduationCap } from 'lucide-react';
-import { AnnouncementBar } from '@/components/announcement-bar';
+import { BookOpen, GraduationCap } from 'lucide-react';
 import { CgpaGauge } from '@/components/charts/cgpa-gauge';
 import { CgpaTrendChart } from '@/components/charts/cgpa-trend-chart';
 import type { CgpaPoint } from '@/components/charts/cgpa-trend-chart';
 import { InsightCard } from '@/components/insight-card';
 import { StatCard } from '@/components/stat-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type {
-    AwaitingRelease,
-    Recommendation,
-    Standing,
-    StudentSummary,
-} from '@/types/portal';
+import type { Recommendation, Standing, StudentSummary } from '@/types/portal';
 
 type SemesterGpa = {
     session: string;
@@ -27,7 +21,6 @@ type Props = {
     standing: Standing;
     cgpaTrend: CgpaPoint[];
     semesterGpas: SemesterGpa[];
-    awaitingRelease: AwaitingRelease[];
     recommendation?: Recommendation;
 };
 
@@ -36,23 +29,13 @@ export default function StudentDashboard({
     standing,
     cgpaTrend,
     semesterGpas,
-    awaitingRelease,
+    recommendation,
 }: Props) {
     return (
         <>
             <Head title="Dashboard" />
 
             <div className="flex flex-col gap-4 p-4">
-                {awaitingRelease.length > 0 ? (
-                    <AnnouncementBar
-                        label="Awaiting release"
-                        message={`${awaitingRelease.length} semester${awaitingRelease.length === 1 ? '' : 's'} of results have been recorded but not yet published.`}
-                        href="/student/results"
-                        linkText="See details"
-                        tone="warning"
-                    />
-                ) : null}
-
                 <div className="grid gap-4 lg:grid-cols-2">
                     <StatCard
                         title="Your record"
@@ -99,29 +82,6 @@ export default function StudentDashboard({
                             },
                         ]}
                     />
-
-                    <StatCard
-                        title="Pending"
-                        icon={Clock}
-                        tiles={[
-                            {
-                                label: 'Awaiting release',
-                                value: awaitingRelease.length,
-                                tone:
-                                    awaitingRelease.length > 0
-                                        ? 'warning'
-                                        : 'default',
-                                hint: 'Semesters not yet published',
-                            },
-                            {
-                                label: 'Courses pending',
-                                value: awaitingRelease.reduce(
-                                    (sum, s) => sum + s.courses,
-                                    0,
-                                ),
-                            },
-                        ]}
-                    />
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-3">
@@ -154,6 +114,7 @@ export default function StudentDashboard({
                         }
                     >
                         <RecommendationPanel
+                            recommendation={recommendation}
                             cgpa={standing.cgpa}
                             classification={standing.classification}
                         />
