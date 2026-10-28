@@ -1,19 +1,9 @@
-import { Head, router } from '@inertiajs/react';
-import { AlertTriangle, Check, Undo2 } from 'lucide-react';
-import { useState } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { AlertTriangle, Eye } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 import type { Column } from '@/components/data-table';
 import { FlagBadge } from '@/components/result-badges';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 
 type Sheet = {
     key: string;
@@ -26,57 +16,27 @@ type Sheet = {
     results: number;
     failures: number;
     edited_after_submission: boolean;
+    url: string;
 };
 
+/**
+ * The queue of submitted sheets. Approving and returning happen on the sheet
+ * itself, so a decision is never taken without the scores in view.
+ */
 export default function Review({ sheets }: { sheets: Sheet[] }) {
-    const [rejecting, setRejecting] = useState<Sheet | null>(null);
-    const [note, setNote] = useState('');
-
-    const approve = (sheet: Sheet) =>
-        router.post(
-            '/review/approve',
-            {
-                course_id: sheet.course_id,
-                session: sheet.session,
-                semester: sheet.semester,
-            },
-            { preserveScroll: true },
-        );
-
-    const reject = () => {
-        if (!rejecting) {
-            return;
-        }
-
-        router.post(
-            '/review/reject',
-            {
-                course_id: rejecting.course_id,
-                session: rejecting.session,
-                semester: rejecting.semester,
-                note,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setRejecting(null);
-                    setNote('');
-                },
-            },
-        );
-    };
-
     const columns: Column<Sheet>[] = [
         {
             key: 'course_code',
             header: 'Course',
             cell: (sheet) => (
-                <div>
-                    <p className="font-medium">{sheet.course_code}</p>
+                <Link href={sheet.url} className="group block">
+                    <p className="font-medium group-hover:underline">
+                        {sheet.course_code}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                         {sheet.course_title}
                     </p>
-                </div>
+                </Link>
             ),
         },
         {
@@ -117,20 +77,12 @@ export default function Review({ sheets }: { sheets: Sheet[] }) {
             header: '',
             align: 'right',
             cell: (sheet) => (
-                <div className="flex justify-end gap-2">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setRejecting(sheet)}
-                    >
-                        <Undo2 className="size-3.5" />
-                        Reject
-                    </Button>
-                    <Button size="sm" onClick={() => approve(sheet)}>
-                        <Check className="size-3.5" />
-                        Approve
-                    </Button>
-                </div>
+                <Button size="sm" asChild>
+                    <Link href={sheet.url}>
+                        <Eye className="size-3.5" />
+                        Review
+                    </Link>
+                </Button>
             ),
         },
     ];
@@ -150,51 +102,12 @@ export default function Review({ sheets }: { sheets: Sheet[] }) {
                 />
 
                 <p className="text-xs text-muted-foreground">
-                    Approving a sheet accepts it academically. It does{' '}
-                    <strong>not</strong> make the results visible to students —
-                    that is a separate publication step.
+                    Open a sheet to see every student's score before approving
+                    or returning it. Approving accepts a sheet academically; it
+                    does <strong>not</strong> make the results visible to
+                    students — that is a separate publication step.
                 </p>
             </div>
-
-            <Dialog
-                open={rejecting !== null}
-                onOpenChange={(open) => !open && setRejecting(null)}
-            >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>
-                            Return {rejecting?.course_code} to the lecturer
-                        </DialogTitle>
-                        <DialogDescription>
-                            The sheet goes back to draft and the note is
-                            recorded on the audit trail.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <Input
-                        value={note}
-                        onChange={(event) => setNote(event.target.value)}
-                        placeholder="Why is this being returned?"
-                        autoFocus
-                    />
-
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setRejecting(null)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={reject}
-                            disabled={note.trim().length < 5}
-                        >
-                            Return to lecturer
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </>
     );
 }

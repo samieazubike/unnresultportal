@@ -55,6 +55,11 @@ class ResultReviewController extends Controller
                     'edited_after_submission' => $group->contains(
                         fn (Result $result) => $this->wasEditedAfterSubmission($result)
                     ),
+                    'url' => route('review.show', [
+                        $course->id,
+                        str_replace('/', '-', $first->registration->session),
+                        $first->registration->semester,
+                    ]),
                 ];
             })
             ->values();
@@ -70,6 +75,9 @@ class ResultReviewController extends Controller
      */
     public function show(Request $request, int $courseId, string $session, int $semester): Response
     {
+        // Sessions are stored as 2025/2026 but travel in the URL as 2025-2026.
+        $session = str_replace('-', '/', $session);
+
         $results = $this->sheet($courseId, $session, $semester, ResultStatus::Submitted);
 
         abort_if($results->isEmpty(), 404);
@@ -123,7 +131,7 @@ class ResultReviewController extends Controller
             return back()->with('error', $exception->getMessage());
         }
 
-        return back()->with(
+        return to_route('review.index')->with(
             'success',
             "Approved {$count} result(s). They are not visible to students until they are published."
         );
@@ -150,7 +158,7 @@ class ResultReviewController extends Controller
 
         $count = $this->workflow->reject($results, $request->user(), $validated['note']);
 
-        return back()->with('success', "Returned {$count} result(s) to the lecturer.");
+        return to_route('review.index')->with('success', "Returned {$count} result(s) to the lecturer.");
     }
 
     /**

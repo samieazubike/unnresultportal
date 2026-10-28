@@ -170,6 +170,56 @@ describe('submission is the head\'s alone', function () {
     });
 });
 
+describe('reviewing a sheet', function () {
+    beforeEach(function () {
+        $this->result = Result::factory()->scoring(70)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Submitted,
+        ]);
+
+        $this->sheetUrl = route('review.show', [$this->course->id, '2025-2026', 1]);
+    });
+
+    it('links each queued sheet to its scores', function () {
+        $this->actingAs($this->officer)
+            ->get('/review')
+            ->assertInertia(fn ($page) => $page
+                ->component('exam-officer/review')
+                ->where('sheets.0.url', $this->sheetUrl)
+            );
+    });
+
+    it('shows the officer every score on the sheet', function () {
+        $this->actingAs($this->officer)
+            ->get($this->sheetUrl)
+            ->assertInertia(fn ($page) => $page
+                ->component('exam-officer/sheet')
+                ->where('session', '2025/2026')
+                ->has('rows', 1)
+                ->where('rows.0.reg_number', $this->student->reg_number)
+                ->where('rows.0.total_score', 70)
+            );
+    });
+
+    it('keeps the sheet away from everyone but the examination officer', function (string $actor) {
+        $this->actingAs($this->{$actor})->get($this->sheetUrl)->assertForbidden();
+    })->with(['head', 'director', 'admin']);
+
+    it('returns to the queue after a decision', function (string $action, array $extra) {
+        $this->actingAs($this->officer)
+            ->post("/review/{$action}", [
+                'course_id' => $this->course->id,
+                'session' => '2025/2026',
+                'semester' => 1,
+                ...$extra,
+            ])
+            ->assertRedirect(route('review.index'));
+    })->with([
+        'approve' => ['approve', []],
+        'reject' => ['reject', ['note' => 'The CA column looks transposed.']],
+    ]);
+});
+
 describe('approval does not publish', function () {
     beforeEach(function () {
         $this->result = Result::factory()->scoring(70)->create([

@@ -93,11 +93,22 @@ class StructureController extends Controller
     {
         $this->authorize('manage', Course::class);
 
+        $role = UserRole::tryFrom((string) $request->query('role')) ?? UserRole::Student;
+
+        $roleCounts = User::query()
+            ->toBase()
+            ->selectRaw('role, count(*) as total')
+            ->groupBy('role')
+            ->pluck('total', 'role');
+
         return Inertia::render('admin/users', [
+            'activeRole' => $role->value,
             'users' => User::query()
+                ->where('role', $role)
                 ->with('student.department')
                 ->orderBy('name')
                 ->paginate(25)
+                ->withQueryString()
                 ->through(fn (User $user) => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -108,26 +119,33 @@ class StructureController extends Controller
                     'department' => $user->student?->department?->dept_name,
                 ]),
             'roles' => array_map(
-                fn (UserRole $role) => ['value' => $role->value, 'label' => $role->label()],
+                fn (UserRole $case) => [
+                    'value' => $case->value,
+                    'label' => $case->label(),
+                    'count' => (int) ($roleCounts[$case->value] ?? 0),
+                ],
                 UserRole::cases(),
             ),
             'departments' => Department::query()->orderBy('dept_name')->get(['id', 'dept_name']),
 
             // The roster is returned whole rather than paginated: a second
             // paginator on this page would fight the users one over ?page=,
-            // and DataTable already pages it in the browser.
-            'students' => Student::query()
-                ->with('department')
-                ->orderBy('reg_number')
-                ->get()
-                ->map(fn (Student $student) => [
-                    'id' => $student->id,
-                    'name' => $student->name,
-                    'reg_number' => $student->reg_number,
-                    'department' => $student->department->dept_name,
-                    'entry_year' => $student->entry_year,
-                    'claimed' => $student->isClaimed(),
-                ]),
+            // and DataTable already pages it in the browser. It belongs to the
+            // Students tab only, so the other tabs skip loading it.
+            'students' => $role === UserRole::Student
+                ? Student::query()
+                    ->with('department')
+                    ->orderBy('reg_number')
+                    ->get()
+                    ->map(fn (Student $student) => [
+                        'id' => $student->id,
+                        'name' => $student->name,
+                        'reg_number' => $student->reg_number,
+                        'department' => $student->department->dept_name,
+                        'entry_year' => $student->entry_year,
+                        'claimed' => $student->isClaimed(),
+                    ])
+                : [],
         ]);
     }
 
