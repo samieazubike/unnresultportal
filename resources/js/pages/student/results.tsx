@@ -1,17 +1,9 @@
-import { Head } from '@inertiajs/react';
-import { Clock, Download, ShieldAlert } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ChevronRight, Clock, Download, ShieldAlert } from 'lucide-react';
 import { AnnouncementBar } from '@/components/announcement-bar';
-import { GradeBadge } from '@/components/result-badges';
 import { StatCard } from '@/components/stat-card';
 import { Button } from '@/components/ui/button';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import { semesterResultUrl } from '@/lib/semester-result';
 import type {
     AwaitingRelease,
     SessionResults,
@@ -146,98 +138,81 @@ export default function StudentResults({
                         </p>
                     </div>
                 ) : (
-                    sessions.map((session) => (
-                        <section
-                            key={`${session.session}-${session.semester}`}
-                            className="overflow-hidden bg-card shadow-sm ring-1 ring-foreground/5"
-                        >
-                            <header className="flex flex-wrap items-center gap-3 border-b border-border p-4">
-                                <h2 className="text-xs font-semibold tracking-widest uppercase">
-                                    {session.label}
-                                </h2>
-                                <div className="ml-auto flex items-center gap-4 text-sm">
-                                    <span className="text-muted-foreground">
-                                        {session.credit_units} credit units
-                                    </span>
-                                    <span className="font-medium">
-                                        GPA{' '}
-                                        <span className="tabular-nums">
-                                            {session.gpa.toFixed(2)}
-                                        </span>
-                                    </span>
-                                </div>
-                            </header>
+                    <section className="overflow-hidden bg-card shadow-sm ring-1 ring-foreground/5">
+                        <header className="border-b border-border p-4">
+                            <h2 className="text-xs font-semibold tracking-widest uppercase">
+                                Semester results
+                            </h2>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Open a semester to see every course and score,
+                                or download its statement of result.
+                            </p>
+                        </header>
 
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="hover:bg-transparent">
-                                            <TableHead className="text-xs">
-                                                Code
-                                            </TableHead>
-                                            <TableHead className="text-xs">
-                                                Course title
-                                            </TableHead>
-                                            <TableHead className="text-center text-xs">
-                                                Units
-                                            </TableHead>
-                                            <TableHead className="text-right text-xs">
-                                                CA
-                                            </TableHead>
-                                            <TableHead className="text-right text-xs">
-                                                Exam
-                                            </TableHead>
-                                            <TableHead className="text-right text-xs">
-                                                Total
-                                            </TableHead>
-                                            <TableHead className="text-center text-xs">
-                                                Grade
-                                            </TableHead>
-                                            <TableHead className="text-center text-xs">
-                                                Point
-                                            </TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {session.courses.map((course) => (
-                                            <TableRow key={course.course_code}>
-                                                <TableCell className="font-medium">
-                                                    {course.course_code}
-                                                </TableCell>
-                                                <TableCell className="text-muted-foreground">
-                                                    {course.course_title}
-                                                </TableCell>
-                                                <TableCell className="text-center tabular-nums">
-                                                    {course.credit_units}
-                                                </TableCell>
-                                                <TableCell className="text-right tabular-nums">
-                                                    {course.ca_score.toFixed(1)}
-                                                </TableCell>
-                                                <TableCell className="text-right tabular-nums">
-                                                    {course.exam_score.toFixed(
-                                                        1,
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="text-right font-medium tabular-nums">
-                                                    {course.total_score.toFixed(
-                                                        1,
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="text-center">
-                                                    <GradeBadge
-                                                        grade={course.grade}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className="text-center tabular-nums">
-                                                    {course.grade_point}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </section>
-                    ))
+                        <ul className="divide-y divide-border">
+                            {[...sessions].reverse().map((session) => {
+                                const url = semesterResultUrl(
+                                    session,
+                                    student.id,
+                                    isOwnResults,
+                                );
+                                const failed = session.courses.filter(
+                                    (course) => course.grade === 'F',
+                                ).length;
+
+                                return (
+                                    <li
+                                        key={`${session.session}-${session.semester}`}
+                                        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+                                    >
+                                        <Link
+                                            href={url}
+                                            className="flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-1"
+                                        >
+                                            <span className="font-medium">
+                                                {session.label}
+                                            </span>
+                                            <span className="text-sm text-muted-foreground">
+                                                {session.courses.length} course
+                                                {session.courses.length === 1
+                                                    ? ''
+                                                    : 's'}{' '}
+                                                · {session.credit_units} credit
+                                                units
+                                                {failed > 0 ? (
+                                                    <span className="text-destructive">
+                                                        {' '}
+                                                        · {failed} failed
+                                                    </span>
+                                                ) : null}
+                                            </span>
+                                            <span className="ml-auto text-sm font-medium">
+                                                GPA{' '}
+                                                <span className="tabular-nums">
+                                                    {session.gpa.toFixed(2)}
+                                                </span>
+                                            </span>
+                                            <ChevronRight className="size-4 text-muted-foreground" />
+                                        </Link>
+
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            size="icon"
+                                        >
+                                            <a
+                                                href={`${url}/download`}
+                                                aria-label={`Download ${session.label} result`}
+                                                title="Download result"
+                                            >
+                                                <Download />
+                                            </a>
+                                        </Button>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </section>
                 )}
             </div>
         </>

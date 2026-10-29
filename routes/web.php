@@ -19,6 +19,7 @@ use App\Http\Controllers\ResultEntryController;
 use App\Http\Controllers\ResultPublicationController;
 use App\Http\Controllers\ResultReviewController;
 use App\Http\Controllers\ResultUploadController;
+use App\Http\Controllers\SemesterResultController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\TranscriptController;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:student')->group(function () {
         Route::get('student/dashboard', StudentDashboardController::class)->name('student.dashboard');
         Route::get('student/results', [StudentPortalController::class, 'index'])->name('student.results');
+        Route::get('student/results/{session}/{semester}', [SemesterResultController::class, 'show'])
+            ->where(['session' => '[0-9]{4}-[0-9]{4}', 'semester' => '[12]'])
+            ->name('student.results.semester');
+        Route::get('student/results/{session}/{semester}/download', [SemesterResultController::class, 'download'])
+            ->where(['session' => '[0-9]{4}-[0-9]{4}', 'semester' => '[12]'])
+            ->name('student.results.semester.download');
 
         Route::get('student/registration', [CourseRegistrationController::class, 'index'])->name('student.registration');
         Route::post('student/registration', [CourseRegistrationController::class, 'store'])->name('student.registration.store');
@@ -102,6 +109,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('transcript', TranscriptController::class)->name('transcript');
     Route::get('students/{student}/transcript', TranscriptController::class)->name('students.transcript');
     Route::get('students/{student}/results', [StudentPortalController::class, 'show'])->name('students.results');
+    Route::get('students/{student}/results/{session}/{semester}', [SemesterResultController::class, 'showForStudent'])
+        ->where(['session' => '[0-9]{4}-[0-9]{4}', 'semester' => '[12]'])
+        ->name('students.results.semester');
+    Route::get('students/{student}/results/{session}/{semester}/download', [SemesterResultController::class, 'downloadForStudent'])
+        ->where(['session' => '[0-9]{4}-[0-9]{4}', 'semester' => '[12]'])
+        ->name('students.results.semester.download');
 
     /*
     | Lecturer — score entry

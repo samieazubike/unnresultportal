@@ -534,6 +534,70 @@ describe('transcript', function () {
     });
 });
 
+describe('semester result', function () {
+    beforeEach(function () {
+        Result::factory()->scoring(70)->create([
+            'registration_id' => $this->registration->id,
+            'status' => ResultStatus::Published,
+        ]);
+    });
+
+    it('shows a student one semester with every course and score', function () {
+        $this->actingAs($this->student->user)
+            ->get('/student/results/2025-2026/1')
+            ->assertInertia(fn ($page) => $page
+                ->component('student/semester-result')
+                ->where('semester.session', '2025/2026')
+                ->where('semester.semester', 1)
+                ->has('semester.courses', 1)
+                ->where('semester.courses.0.course_code', 'COS 421')
+                ->where('semester.courses.0.total_score', 70)
+                ->where('isOwnResults', true)
+            );
+    });
+
+    it('downloads one semester as a PDF named after the student and semester', function () {
+        $response = $this->actingAs($this->student->user)->get('/student/results/2025-2026/1/download');
+
+        $response->assertOk()
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertDownload('result-'.str_replace('/', '-', $this->student->reg_number).'-2025-2026-semester-1.pdf');
+
+        expect($response->getContent())->toStartWith('%PDF');
+    });
+
+    it('finds nothing for a semester with no published results', function (string $path) {
+        $this->actingAs($this->student->user)->get($path)->assertNotFound();
+    })->with(['/student/results/2025-2026/2', '/student/results/2025-2026/2/download']);
+
+    it('does not reveal an approved but unpublished semester', function () {
+        $this->registration->result->update(['status' => ResultStatus::Approved]);
+
+        $this->actingAs($this->student->user)->get('/student/results/2025-2026/1')->assertNotFound();
+    });
+
+    it('lets staff open and download a student\'s semester', function () {
+        $this->actingAs($this->officer)
+            ->get("/students/{$this->student->id}/results/2025-2026/1")
+            ->assertInertia(fn ($page) => $page
+                ->component('student/semester-result')
+                ->where('isOwnResults', false)
+            );
+
+        $this->actingAs($this->officer)
+            ->get("/students/{$this->student->id}/results/2025-2026/1/download")
+            ->assertOk();
+    });
+
+    it('refuses another student\'s semester by URL', function (string $suffix) {
+        $other = Student::factory()->create();
+
+        $this->actingAs($other->user)
+            ->get("/students/{$this->student->id}/results/2025-2026/1{$suffix}")
+            ->assertForbidden();
+    })->with(['', '/download']);
+});
+
 describe('dashboards render', function () {
     beforeEach(function () {
         Result::factory()->scoring(70)->create([
